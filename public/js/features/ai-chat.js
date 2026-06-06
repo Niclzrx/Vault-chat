@@ -49,9 +49,16 @@ const AI = {
 
     let res;
     try {
-      res = await fetch(this.apiUrl, { method: 'POST', headers, body: JSON.stringify(body) });
+      const proxyHeaders = {};
+      if (this.apiKey) proxyHeaders['Authorization'] = 'Bearer ' + this.apiKey;
+      res = await fetch('/api/ai-proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ apiUrl: this.apiUrl, body, headers: proxyHeaders })
+      });
     } catch (e) {
-      throw new Error('Falha de rede — possível erro de CORS. Use um servidor local (http://localhost) em vez de abrir o arquivo direto.');
+      throw new Error('Falha de rede ao conectar com o servidor proxy.');
     }
     if (!res.ok) {
       let err;

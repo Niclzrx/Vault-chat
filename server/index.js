@@ -80,6 +80,7 @@ const groupRoutes = require('./routes/groups');
 const fileRoutes = require('./routes/files');
 const notifRoutes = require('./routes/notifications');
 const adminRoutes = require('./routes/admin');
+const aiProxyRoutes = require('./routes/ai-proxy');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -87,6 +88,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/notifications', notifRoutes);
+app.use('/api/ai-proxy', aiProxyRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.get('/api/csrf', (req, res) => {
