@@ -1,0 +1,8 @@
+node_modules/
+certs/
+uploads/
+vault.db
+vault.db-wal
+vault.db-shm
+.env
+*.txt

@@ -19,7 +19,7 @@ const { csrfToken } = require('./middleware/auth');
 const app = express();
 
 const CERT_DIR = path.join(__dirname, '..', 'certs');
-const useHTTPS = fs.existsSync(path.join(CERT_DIR, 'cert.pem')) && fs.existsSync(path.join(CERT_DIR, 'key.pem'));
+const useHTTPS = process.env.NODE_ENV !== 'production' && fs.existsSync(path.join(CERT_DIR, 'cert.pem')) && fs.existsSync(path.join(CERT_DIR, 'key.pem'));
 
 let server;
 if (useHTTPS) {
@@ -216,7 +216,7 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   const proto = useHTTPS ? 'https' : 'http';
   console.log(`[VAULT] Servidor rodando em ${proto}://localhost:${PORT}`);
   console.log(`[VAULT] Ambiente: ${process.env.NODE_ENV || 'development'}`);
