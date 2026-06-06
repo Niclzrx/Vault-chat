@@ -1,0 +1,19 @@
+/* Vault — Admin */
+
+table { width: 100%; border-collapse: collapse; font-size: .74rem; }
+thead tr { border-bottom: 1px solid var(--border2); }
+th { padding: .5rem .6rem; text-align: left; font-size: .6rem; color: var(--t2); text-transform: uppercase; letter-spacing: .06em; font-weight: 700; }
+td { padding: .5rem .6rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border: none; }
+tr:hover td { background: var(--bg3); }
+
+.live-pulse { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--ac); animation: liveP 1.4s ease infinite; }
+@keyframes liveP { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:.5} }
+
+.ban-overlay { position: absolute; inset: 0; background: rgba(239,68,68,.05); border-radius: inherit; pointer-events: none; border: 1px solid rgba(239,68,68,.15); }
+.admin-granted { color: var(--warn) !important; }
+
+.live-chat-frame { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: .75rem; max-height: 240px; overflow-y: auto; }
+.live-msg { padding: .35rem 0; border-bottom: 1px solid var(--border); font-size: .74rem; }
+.live-msg:last-child { border: none; }
+.live-msg .lm-from { color: var(--ac2); font-weight: 700; margin-right: .35rem; }

@@ -1,0 +1,69 @@
+/* Vault — Base: Reset + Variables (redesigned, non-AI look) */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:    #08080d;
+  --bg2:   #0c0c14;
+  --bg3:   #111119;
+  --bg4:   #18182a;
+  --bg5:   #1e1e32;
+  --card:  #0f0f1a;
+  --card2: #141422;
+  --ac:    #9b59b6;
+  --ac2:   #b07ad8;
+  --ac3:   #c9a0f0;
+  --ac4:   #7c3aed;
+  --ac5:   #e9d5ff;
+  --gold:  #f5a623;
+  --gold2: #eab308;
+  --gold3: #fbbf24;
+  --gold4: #d97706;
+  --gold-dim:  rgba(245,166,35,.09);
+  --gold-dim2: rgba(245,166,35,.15);
+  --gold-dim3: rgba(245,166,35,.22);
+  --ac-dim:   rgba(155,89,182,.09);
+  --ac-dim2:  rgba(155,89,182,.15);
+  --ac-dim3:  rgba(155,89,182,.22);
+  --danger: #ef4444;
+  --warn:   #f59e0b;
+  --info:   #38bdf8;
+  --ok:     #22c55e;
+  --t:  #e8e8ed;
+  --t2: #9494a3;
+  --t3: #5c5c6e;
+  --border:  rgba(255,255,255,.05);
+  --border2: rgba(255,255,255,.08);
+  --border3: rgba(255,255,255,.14);
+  --radius-sm: 5px;
+  --radius:    9px;
+  --radius-lg: 14px;
+  --shadow:    0 6px 32px rgba(0,0,0,.55);
+  --glow-ac:  0 0 0 1px rgba(155,89,182,.25);
+  --glow-gold: 0 0 0 1px rgba(245,166,35,.25);
+  --gradient: linear-gradient(135deg, #9b59b6, #7c3aed, #f5a623);
+  --gradient2: linear-gradient(135deg, #f5a623, #9b59b6);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--t);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'cv05' 1, 'cv11' 1;
+}
+
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--t3); }

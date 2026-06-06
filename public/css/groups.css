@@ -1,0 +1,56 @@
+/* Vault — Groups */
+
+.u-groups { display: flex; flex-direction: column; gap: .75rem; }
+.groups-header { display: flex; align-items: center; justify-content: space-between; gap: .4rem; }
+.groups-header h2 { font-size: 1rem; font-weight: 700; }
+.groups-list { display: flex; flex-direction: column; gap: .4rem; }
+.groups-empty { text-align: center; padding: 1.5rem; color: var(--t3); font-size: .78rem; }
+
+/* ── Create group panel ── */
+.grp-create-panel {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--radius); padding: .95rem 1rem;
+  margin-bottom: .1rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,.35);
+}
+@keyframes grpPanelIn  { from { opacity:0; transform:translateY(-8px) scale(.99); } to { opacity:1; transform:none; } }
+@keyframes grpPanelOut { to   { opacity:0; transform:translateY(-6px) scale(.99); } }
+.grp-create-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: .8rem; padding-bottom: .6rem; border-bottom: 1px solid var(--border);
+}
+.grp-create-title { font-size: .8rem; font-weight: 700; color: var(--ac2); }
+
+/* ── Member chip grid ── */
+.grp-member-grid { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .25rem; }
+.grp-member-chip {
+  display: flex; align-items: center; gap: .35rem;
+  padding: .3rem .6rem .3rem .3rem;
+  background: var(--bg4); border: 1px solid var(--border2);
+  border-radius: 99px; cursor: pointer; transition: all .13s;
+  user-select: none;
+}
+.grp-member-chip:hover { border-color: var(--ac); background: var(--ac-dim); }
+.grp-member-chip.selected {
+  border-color: var(--ac2); background: var(--ac-dim2); color: var(--ac2);
+}
+.grp-chip-av {
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .6rem; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.grp-chip-name { font-size: .72rem; font-weight: 500; }
+.grp-chip-check {
+  font-size: .58rem; color: var(--ac2); opacity: 0;
+  transition: opacity .12s; margin-left: .1rem;
+}
+.grp-member-chip.selected .grp-chip-check { opacity: 1; }
+
+.group-card { display: flex; align-items: center; gap: .6rem; padding: .55rem .6rem; background: var(--bg3); border-radius: var(--radius-sm); border: 1px solid var(--border); cursor: pointer; transition: all .1s; }
+.group-card:hover { border-color: var(--border2); background: var(--bg4); }
+.group-icon { width: 30px; height: 30px; border-radius: 50%; background: var(--ac-dim); display: flex; align-items: center; justify-content: center; font-size: .78rem; flex-shrink: 0; }
+.group-info { display: flex; flex-direction: column; flex: 1; }
+.group-name { font-size: .78rem; font-weight: 600; }
+.group-members { font-size: .65rem; color: var(--t2); }
+.group-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 17px; height: 17px; padding: 0 .24rem; border-radius: 99px; background: var(--danger); color: #fff; font-size: .58rem; font-weight: 700; }
+.group-chat { display: flex; flex-direction: column; height: calc(100vh - 190px); }

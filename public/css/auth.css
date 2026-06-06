@@ -1,0 +1,36 @@
+/* Vault — Auth: Login, Admin Trigger */
+
+.auth-box { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.8rem; width: 100%; max-width: 400px; position: relative; overflow: hidden; }
+.auth-box h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: .18rem; letter-spacing: -.02em; }
+.auth-box .sub { font-size: .75rem; color: var(--t2); margin-bottom: 1.2rem; line-height: 1.6; }
+.auth-foot { text-align: center; margin-top: .85rem; font-size: .73rem; color: var(--t2); }
+.auth-foot a { color: var(--ac2); cursor: pointer; }
+
+/* ── Tab slide animations ── */
+#auth-login, #auth-register { will-change: transform, opacity; }
+@keyframes tabSlideOutLeft  { to { opacity: 0; transform: translateX(-18px); } }
+@keyframes tabSlideOutRight { to { opacity: 0; transform: translateX(18px); } }
+@keyframes tabSlideInRight  { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: none; } }
+@keyframes tabSlideInLeft   { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: none; } }
+
+/* ── Password field with toggle button ── */
+/* (eye-btn e toggle-pw definidos globalmente em components.css) */
+
+.ghost-link {
+  font-size: .55rem; color: transparent; cursor: pointer;
+  margin-top: .75rem; display: block; text-align: center;
+  padding: .15rem; user-select: none; letter-spacing: .2em;
+}
+.ghost-link:hover { color: var(--t3); }
+
+#admin-click-indicator {
+  position: fixed; bottom: .85rem; left: 50%; transform: translateX(-50%);
+  background: var(--bg4); border: 1px solid var(--border2);
+  border-radius: 99px; padding: .25rem .75rem; font-size: .62rem;
+  color: var(--t2); z-index: 9997; display: none;
+  font-family: 'JetBrains Mono', monospace;
+}
+#admin-click-indicator.visible { display: block; animation: fadeUp .2s ease; }
+#admin-click-indicator .bar { display: inline-flex; gap: 2px; margin-left: .4rem; }
+#admin-click-indicator .pip { width: 4px; height: 4px; border-radius: 50%; background: var(--t3); transition: background .15s; }
+#admin-click-indicator .pip.lit { background: var(--ac); }

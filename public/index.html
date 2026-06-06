@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ChatVault — Segurança. Privacidade. Liberdade.</title>
+<link rel="icon" href="img/icon.png"/>
+<link rel="stylesheet" href="css/base.css"/>
+<link rel="stylesheet" href="css/layout.css"/>
+<link rel="stylesheet" href="css/components.css"/>
+<link rel="stylesheet" href="css/auth.css"/>
+<link rel="stylesheet" href="css/chat.css"/>
+<link rel="stylesheet" href="css/groups.css"/>
+<link rel="stylesheet" href="css/files.css"/>
+<link rel="stylesheet" href="css/admin.css"/>
+<link rel="stylesheet" href="css/modals.css"/>
+<link rel="stylesheet" href="css/utilities.css"/>
+<link rel="stylesheet" href="css/ai-chat.css"/>
+</head>
+<body>
+
+<!-- ================================================
+     LANDING PAGE
+================================================= -->
+<div class="page active" id="p-land">
+<nav>
+  <div class="brand" onclick="go('p-land')">
+    <img src="img/icon.png" alt="ChatVault" class="brand-icon-img"/>
+    <span class="brand-text">Chat<span class="brand-vault">Vault</span></span>
+  </div>
+  <div class="nav-r">
+    <span id="tk-on" class="badge b-green pulse">● 0 online</span>
+    <button class="btn sm" onclick="go('p-login')">Entrar →</button>
+  </div>
+</nav>
+<div class="canvas-wrap" style="flex:1;display:flex;flex-direction:column">
+  <canvas id="particles"></canvas>
+  <div class="hero-c">
+    <div class="hero-inner">
+      <!-- Lado esquerdo: Logo grande + nome + tagline -->
+      <div class="hero-left">
+        <img src="img/icon.png" alt="ChatVault" class="hero-logo"/>
+        <h1 class="drift">Chat<span class="hl">Vault</span></h1>
+        <p class="hero-tagline">SEGURANÇA. PRIVACIDADE. LIBERDADE.</p>
+      </div>
+      <!-- Lado direito: Logo variants + card descritivo -->
+      <div class="hero-right">
+        <div class="logo-showcase">
+          <div class="logo-card logo-card-purple"><img src="img/icon.png" alt="ChatVault"/></div>
+          <div class="logo-card logo-card-purple2"><img src="img/icon.png" alt="ChatVault"/></div>
+          <div class="logo-card logo-card-gold"><img src="img/icon.png" alt="ChatVault"/></div>
+          <div class="logo-card-desc">
+            <span class="logo-desc-brand">Chat<span style="color:var(--gold)">Vault</span></span>
+            <span class="logo-desc-text">Seu espaço seguro para conversas e arquivos.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Descrição + CTA centralizado abaixo -->
+    <p class="hero-sub sr sr-d1">Seu espaço seguro para conversas e arquivos. Mensagens criptografadas com AES-256-GCM real, armazenamento seguro e total privacidade.</p>
+    <div class="hero-btns sr sr-d2">
+      <button class="btn pri lg ripple" onclick="go('p-login')">Acessar plataforma →</button>
+    </div>
+  </div>
+</div>
+<div class="feat-bar stag">
+  <div class="feat-item"><span class="feat-item-icon">🔐</span><span>Criptografia<br/><b>AES-256-GCM</b></span></div>
+  <div class="feat-item"><span class="feat-item-icon">💬</span><span>Conversas<br/><b>em tempo real</b></span></div>
+  <div class="feat-item"><span class="feat-item-icon">📁</span><span>Armazenamento<br/><b>seguro</b></span></div>
+  <div class="feat-item"><span class="feat-item-icon">📎</span><span>Arquivos<br/><b>criptografados</b></span></div>
+  <div class="feat-item"><span class="feat-item-icon">🛡️</span><span>Privacidade<br/><b>total</b></span></div>
+</div>
+<div class="ticker">
+  <span>Sistema ativo <b>●</b></span>
+  <span>Usuários: <b id="tk-total">0</b></span>
+  <span>Online: <b id="tk-online">0</b></span>
+  <span>Mensagens: <b id="tk-msgs">0</b></span>
+  <span>Crypto: <b>AES-GCM</b></span>
+</div>
+</div>
+
+<!-- ================================================
+     LOGIN / REGISTRO
+================================================= -->
+<div class="page" id="p-login">
+<nav>
+  <div class="brand" onclick="go('p-land')">
+    <img src="img/icon.png" alt="ChatVault" class="brand-icon-img"/>
+    <span class="brand-text">Chat<span class="brand-vault">Vault</span></span>
+  </div>
+  <div class="nav-r"><button class="btn sm" onclick="go('p-land')">← Início</button></div>
+</nav>
+<div class="auth-w">
+    <div class="auth-box aurora">
+      <div class="tabs" id="auth-tabs">
+        <div class="tab on" onclick="switchTab('login')">Entrar</div>
+        <div class="tab" onclick="switchTab('register')">Criar conta</div>
+      </div>
+      <div id="auth-login">
+        <div class="field"><label>Email</label><input id="login-user" type="email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+        <div class="field"><label>Senha</label>
+          <div class="toggle-pw"><input id="login-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/><button class="eye-btn ripple" onclick="togglePw('login-pass',this)">◎</button></div>
+        </div>
+        <button class="btn pri full ripple" onclick="doLogin()">Entrar na conta</button>
+        <div class="auth-foot"><a onclick="go('p-recovery')">Esqueceu a senha? Recuperar</a></div>
+      </div>
+      <div id="auth-register" style="display:none">
+        <div class="field"><label>Nome</label><input id="reg-user" type="text" placeholder="Seu nome"/></div>
+        <div class="field"><label>Email</label><input id="reg-email" type="email" placeholder="seu@email.com"/></div>
+        <div class="field"><label>Senha</label>
+          <div class="toggle-pw"><input id="reg-pass" type="password" placeholder="Mínimo 8 caracteres"/><button class="eye-btn ripple" onclick="togglePw('reg-pass',this)">◎</button></div>
+        </div>
+        <div class="field"><label>Confirmar senha</label>
+          <div class="toggle-pw"><input id="reg-pass2" type="password" placeholder="Repita a senha"/><button class="eye-btn ripple" onclick="togglePw('reg-pass2',this)">◎</button></div>
+        </div>
+        <button class="btn pri full ripple" onclick="doRegister()">Criar conta</button>
+      </div>
+      <span class="ghost-link" id="admin-ghost">v2.0.0-aes-gcm</span>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================
+     RECUPERAÇÃO
+================================================= -->
+<div class="page" id="p-recovery">
+<nav>
+  <div class="brand" onclick="go('p-land')">
+    <img src="img/icon.png" alt="ChatVault" class="brand-icon-img"/>
+    <span class="brand-text">Chat<span class="brand-vault">Vault</span></span>
+  </div>
+  <div class="nav-r"><button class="btn sm" onclick="go('p-login')">← Voltar</button></div>
+</nav>
+<div class="auth-w">
+  <div class="auth-box" style="max-width:460px">
+    <h2>Recuperar conta</h2>
+    <div class="sub">Envie uma solicitação. O admin redefinirá sua senha.</div>
+    <div id="rec-msg"></div>
+    <div class="field"><label>Nome completo</label><input id="rec-name" type="text" placeholder="Seu nome"/></div>
+    <div class="field"><label>Email da conta</label><input id="rec-email" type="email" placeholder="email@usado.no.cadastro"/></div>
+    <div class="field"><label>Mensagem (opcional)</label><textarea id="rec-msg-text" rows="3" placeholder="Explique o que aconteceu..."></textarea></div>
+    <button class="btn pri full" onclick="submitRecovery()">✉ Enviar solicitação</button>
+  </div>
+</div>
+</div>
+
+<!-- ================================================
+     DASHBOARD USUÁRIO
+================================================= -->
+<div class="page" id="p-user">
+<nav>
+  <div class="brand" onclick="go('p-land')">
+    <img src="img/icon.png" alt="ChatVault" class="brand-icon-img"/>
+    <span class="brand-text">Chat<span class="brand-vault">Vault</span></span>
+  </div>
+  <div class="nav-r">
+    <button class="btn sm menu-btn" onclick="toggleSide()">≡</button>
+    <span id="u-badge" class="badge b-purple">◉ Usuário</span>
+    <button class="btn sm ripple" onclick="uSec('notif')" style="position:relative">◇ <span id="notif-dot" class="notif-dot" style="display:none">0</span></button>
+    <button class="btn sm red" onclick="doLogout()">Sair</button>
+  </div>
+</nav>
+<div class="dash">
+  <div class="side">
+    <div class="side-label">PRINCIPAL</div>
+    <div class="si" id="si-home" onclick="uSec('home')"><span class="si-ico">🏠</span> Início</div>
+    <div class="si" id="si-chat" onclick="uSec('chat')"><span class="si-ico">💬</span> Mensagens</div>
+    <div class="si" id="si-files" onclick="uSec('files')"><span class="si-ico">📁</span> Arquivos</div>
+    <div class="si" id="si-notif" onclick="uSec('notif')" style="position:relative"><span class="si-ico">🔔</span> Notificações</div>
+    <div class="side-sep"></div>
+    <div class="side-label">CONTA</div>
+    <div class="si" id="si-profile" onclick="uSec('profile')"><span class="si-ico">👤</span> Perfil</div>
+    <div class="si" id="si-settings" onclick="uSec('settings')"><span class="si-ico">⚙️</span> Configurações</div>
+    <div class="si" id="si-history" onclick="uSec('history')"><span class="si-ico">📋</span> Histórico</div>
+    <div class="si" id="si-crypto" onclick="uSec('crypto')"><span class="si-ico">🔐</span> Cripto</div>
+    <div class="si" id="si-groups" onclick="uSec('groups')"><span class="si-ico">👥</span> Grupos</div>
+    <div class="side-sep"></div>
+    <div class="si" onclick="openAIChat()"><span class="si-ico">✨</span> IA</div>
+    <div class="side-bottom">
+      <div class="side-user" id="side-user-info"></div>
+      <div class="si" onclick="doLogout()" style="color:var(--danger)"><span class="si-ico">🚪</span> Sair</div>
+    </div>
+  </div>
+  <div class="mc" id="u-main"></div>
+</div>
+</div>
+
+<!-- ================================================
+     ADMIN LOGIN
+================================================= -->
+<div class="page" id="p-adm-login">
+<nav>
+  <div class="brand" onclick="go('p-land')">
+    <img src="img/icon.png" alt="ChatVault" class="brand-icon-img"/>
+    <span class="brand-text">Chat<span class="brand-vault">Vault</span></span>
+  </div>
+  <div class="nav-r"><button class="btn sm" onclick="go('p-land')">← Início</button></div>
+</nav>
+<div class="auth-w">
+  <div class="auth-box aurora" style="max-width:380px">
+    <h2 style="display:flex;align-items:center;gap:.5rem">🛡️ <span>Admin</span></h2>
+    <div class="sub">Acesso restrito. Autenticação administrativa.</div>
+    <div id="adm-err"></div>
+    <div class="field"><label>ID Admin</label><input id="adm-code" type="text" placeholder="ID de administrador" onkeydown="if(event.key==='Enter')doAdminLogin()"/></div>
+    <div class="field"><label>Senha</label>
+      <div class="toggle-pw"><input id="adm-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAdminLogin()"/><button class="eye-btn ripple" onclick="togglePw('adm-pass',this)">◎</button></div>
+    </div>
+    <button class="btn pri full ripple" onclick="doAdminLogin()">Entrar como admin</button>
+  </div>
+</div>
+</div>
+
+<!-- ================================================
+     DASHBOARD ADMIN
+================================================= -->
+<div class="page" id="p-adm">
+<nav>
+  <div class="brand" onclick="go('p-land')">
+    <img src="img/icon.png" alt="ChatVault" class="brand-icon-img"/>
+    <span class="brand-text">Chat<span class="brand-vault">Vault</span> <span style="color:var(--t2);font-weight:500;font-size:.7rem">Admin</span></span>
+  </div>
+  <div class="nav-r">
+    <button class="btn sm menu-btn" onclick="toggleSide()">≡</button>
+    <span class="badge b-red">🛡️ Admin</span>
+    <button class="btn sm red" onclick="doLogout()">Sair</button>
+  </div>
+</nav>
+<div class="dash">
+  <div class="side">
+    <div class="side-label">Visão geral</div>
+    <div class="si on" id="si-adm-panel" onclick="renderAdminPanel()"><span class="si-ico">📊</span> Painel</div>
+    <div class="si" id="si-adm-users" onclick="renderAdminUsers()"><span class="si-ico">👥</span> Usuários</div>
+    <div class="si" id="si-adm-live" onclick="renderAdminLive()"><span class="si-ico">🟢</span> Ao vivo</div>
+    <div class="side-sep"></div>
+    <div class="side-label">Monitoramento</div>
+    <div class="si" id="si-adm-chats" onclick="renderAdminChats()"><span class="si-ico">💬</span> Conversas</div>
+    <div class="si" id="si-adm-groups" onclick="renderAdminGroups()"><span class="si-ico">👥</span> Grupos</div>
+    <div class="si" id="si-adm-logins" onclick="renderAdminLogins()"><span class="si-ico">🔑</span> Logins</div>
+    <div class="si" id="si-adm-logs" onclick="renderAdminLogs()"><span class="si-ico">📋</span> Logs</div>
+    <div class="si" id="si-adm-recovery" onclick="renderAdminRecovery()"><span class="si-ico">✉️</span> Recuperações</div>
+    <div class="side-sep"></div>
+    <div class="side-label">Sistema</div>
+    <div class="si" id="si-adm-config" onclick="renderAdminConfig()"><span class="si-ico">⚙️</span> Config</div>
+    <div class="si" id="si-adm-ai" onclick="renderAdminAIBlock()"><span class="si-ico">🤖</span> Controle IA</div>
+    <div class="side-sep"></div>
+    <div class="si" onclick="go('p-land')"><span class="si-ico">←</span> Início</div>
+    <div class="side-bottom">
+      <div class="si" onclick="doLogout()" style="color:var(--danger)"><span class="si-ico">🚪</span> Sair</div>
+    </div>
+  </div>
+  <div class="mc" id="adm-content"></div>
+</div>
+</div>
+
+<!-- ================================================
+     AI CHAT
+================================================= -->
+<div class="page" id="p-ai-chat">
+<nav>
+  <div class="brand" onclick="go('p-land')">
+    <img src="img/icon.png" alt="ChatVault" class="brand-icon-img"/>
+    <span class="brand-text">Chat<span class="brand-vault">Vault</span></span>
+  </div>
+  <div class="nav-r">
+    <button class="btn sm menu-btn" onclick="toggleSide()">≡</button>
+    <span class="badge b-blue pulse">● IA Ativo</span>
+    <button class="btn sm" onclick="showAIConfig()">⚙️ Config</button>
+    <button class="btn sm red" onclick="doLogout()">Sair</button>
+  </div>
+</nav>
+<div class="dash">
+  <div class="side">
+    <div class="side-label">Inteligência</div>
+    <div class="si on" id="si-ai-chat" onclick="renderAIChat()"><span class="si-ico">✨</span> Chat IA</div>
+    <div class="si" id="si-ai-history" onclick="renderAIHistory()"><span class="si-ico">📋</span> Histórico</div>
+    <div class="side-sep"></div>
+    <div class="side-label">Navegação</div>
+    <div class="si" onclick="backToUserDash()"><span class="si-ico">←</span> Dashboard</div>
+  </div>
+  <div class="mc" id="ai-main">
+    <div class="pt">Assistente IA</div>
+    <div class="ps">Inteligência artificial integrada · suas conversas são privadas</div>
+    <div class="card" id="ai-block-notice" style="display:none;border-color:rgba(239,68,68,.2)">
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <span style="font-size:1.2rem">🚫</span>
+        <div><div style="font-weight:700;color:var(--danger)">Acesso bloqueado</div><div style="font-size:.74rem;color:var(--t2)">O administrador bloqueou seu acesso ao assistente IA.</div></div>
+      </div>
+    </div>
+    <div id="ai-chat-area"></div>
+    <div id="ai-config-area" style="display:none"></div>
+  </div>
+</div>
+</div>
+
+<!-- ================================================
+     SCRIPTS
+================================================= -->
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/core/api.js"></script>
+<script src="js/core/utils.js"></script>
+<script src="js/core/crypto.js"></script>
+<script src="js/core/security.js"></script>
+<script src="js/core/auth.js"></script>
+
+<script src="js/user/home.js"></script>
+<script src="js/user/chat.js"></script>
+<script src="js/user/groups.js"></script>
+<script src="js/user/files.js"></script>
+<script src="js/user/notifications.js"></script>
+<script src="js/user/profile.js"></script>
+<script src="js/user/settings.js"></script>
+<script src="js/user/crypto-lab.js"></script>
+<script src="js/user/history.js"></script>
+
+<script src="js/admin/panel.js"></script>
+<script src="js/admin/live.js"></script>
+<script src="js/admin/users.js"></script>
+<script src="js/admin/chats.js"></script>
+<script src="js/admin/groups.js"></script>
+<script src="js/admin/logins.js"></script>
+<script src="js/admin/logs.js"></script>
+<script src="js/admin/recovery.js"></script>
+<script src="js/admin/config.js"></script>
+
+<script src="js/features/ai-block.js"></script>
+<script src="js/features/ai-chat.js"></script>
+
+<script>
+/* -- Particles -- */
+(function initParticles() {
+  const canvas = document.getElementById('particles');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, pts = [];
+  function resize() {
+    const r = canvas.parentElement.getBoundingClientRect();
+    W = canvas.width  = r.width;
+    H = canvas.height = r.height || 500;
+  }
+  resize();
+  for (let i = 0; i < 55; i++) {
+    pts.push({ x: Math.random()*W, y: Math.random()*H, vx: (Math.random()-.5)*.25, vy: (Math.random()-.5)*.25, r: Math.random()*1.4+.4, a: Math.random()*Math.PI*2 });
+  }
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.a += .004;
+      if(p.x<0) p.x=W; if(p.x>W) p.x=0;
+      if(p.y<0) p.y=H; if(p.y>H) p.y=0;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle = `rgba(155,89,182,${.12+Math.sin(p.a)*.06})`; ctx.fill();
+    });
+    for (let i = 0; i < pts.length; i++) {
+      for (let j = i+1; j < pts.length; j++) {
+        const d = Math.hypot(pts[i].x-pts[j].x, pts[i].y-pts[j].y);
+        if (d < 90) {
+          ctx.beginPath(); ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y);
+          ctx.strokeStyle = `rgba(155,89,182,${.05*(1-d/90)})`; ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+  window.addEventListener('resize', resize);
+})();
+
+/* -- Mobile sidebar toggle -- */
+function toggleSide() {
+  const dash = document.querySelector('.page.active .dash');
+  if (!dash) return;
+  const opening = !dash.classList.contains('side-open');
+  dash.classList.toggle('side-open');
+  let overlay = dash.querySelector('.side-overlay');
+  if (opening) {
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'side-overlay';
+      overlay.addEventListener('click', toggleSide);
+      dash.appendChild(overlay);
+    }
+    overlay.style.display = 'block';
+    setTimeout(() => {
+      const closer = (e) => {
+        const side = dash.querySelector('.side');
+        if (side && (e.target.closest('.si') || (!e.target.closest('.side') && !e.target.closest('.side-overlay')))) {
+          toggleSide();
+        }
+      };
+      document.addEventListener('click', closer);
+      dash._sideCloser = closer;
+    }, 50);
+  } else {
+    if (overlay) overlay.style.display = 'none';
+    if (dash._sideCloser) {
+      document.removeEventListener('click', dash._sideCloser);
+      delete dash._sideCloser;
+    }
+  }
+}
+
+/* -- AI Chat helper -- */
+function openAIChat() {
+  go('p-ai-chat');
+  setTimeout(() => renderAIChat(), 50);
+}
+
+function backToUserDash() {
+  if (AppUser) { go('p-user'); uSec('home'); }
+  else { go('p-land'); }
+}
+
+let AppUser = null;
+let AppAdmin = null;
+let AppSocket = null;
+
+function connectSocket() {
+  if (AppSocket) return;
+  AppSocket = io({ withCredentials: true });
+  AppSocket.on('connect', () => { console.log('[VAULT] Socket conectado'); });
+  AppSocket.on('disconnect', () => { console.log('[VAULT] Socket desconectado'); });
+  AppSocket.on('chat:message', (data) => { if (typeof onSocketMessage === 'function') onSocketMessage(data); });
+  AppSocket.on('chat:typing', (data) => { if (typeof onSocketTyping === 'function') onSocketTyping(data); });
+  AppSocket.on('chat:notify', (data) => { if (typeof onSocketNotify === 'function') onSocketNotify(data); });
+  AppSocket.on('group:message', (data) => { if (typeof onGroupMessage === 'function') onGroupMessage(data); });
+  AppSocket.on('group:typing', (data) => { if (typeof onGroupTyping === 'function') onGroupTyping(data); });
+  AppSocket.on('user:online', (data) => { if (typeof onUserOnline === 'function') onUserOnline(data); });
+}
+
+/* -- Init -- */
+document.addEventListener('DOMContentLoaded', async () => {
+  await API.init();
+  updateTicker();
+  Session.start();
+  AdminTrigger.init();
+  try {
+    const res = await API.me();
+    if (res.ok) {
+      if (res.type === 'admin') {
+        AppAdmin = res.admin;
+        go('p-adm');
+        aSec('panel');
+      } else {
+        AppUser = res.user;
+        connectSocket();
+        openUserDash();
+      }
+    }
+  } catch (_) {}
+  const hash = window.location.hash;
+  const params = new URLSearchParams(window.location.search);
+  if (hash === '#admin' || params.has('vault_admin')) {
+    history.replaceState(null, '', window.location.pathname);
+    go('p-adm-login');
+  }
+});
+</script>
+
+</body>
+</html>
