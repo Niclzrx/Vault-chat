@@ -18,6 +18,11 @@ const AI = {
     localStorage.setItem('vault_ai_key', key);
   },
 
+  clearKey() {
+    this.apiKey = '';
+    localStorage.removeItem('vault_ai_key');
+  },
+
   saveHistory() {
     localStorage.setItem('vault_ai_history', JSON.stringify(this.history));
   },
@@ -28,18 +33,8 @@ const AI = {
   },
 
   async send(message) {
-    this.history.push({ role: 'user', content: message, time: fmtTime() });
-    const messages = this.history.slice(-20).map(m => ({ role: m.role, content: m.content }));
-    const headers = { 'Content-Type': 'application/json' };
-    if (this.apiKey) headers['Authorization'] = 'Bearer ' + this.apiKey;
-
-    const isOllamaNative = this.apiUrl.includes('/api/chat');
-    const body = isOllamaNative ? {
-      model: this.model,
-      messages: [{ role: 'system', content: 'Você é um assistente integrado à plataforma Vault, um ambiente seguro de mensagens criptografadas. Seja direto, técnico quando necessário e responda em português brasileiro.' }, ...messages],
-      options: { temperature: this.temperature, num_predict: this.maxTokens },
-      stream: false
-    } : {
+    const messages = [...this.history.slice(-20).map(m => ({ role: m.role, content: m.content })), { role: 'user', content: message }];
+    const body = {
       model: this.model,
       messages: [{ role: 'system', content: 'Você é um assistente integrado à plataforma Vault, um ambiente seguro de mensagens criptografadas. Seja direto, técnico quando necessário e responda em português brasileiro.' }, ...messages],
       max_tokens: this.maxTokens,
@@ -87,11 +82,10 @@ async function renderAIChat() {
 
   if (configArea) configArea.style.display = 'none';
 
-  const u = AppUser;
-  if (u) {
+  if (AppUser) {
     try {
       const blockRes = await API.adminAIBlocked();
-      if (blockRes.ok && blockRes.blocked && blockRes.blocked.includes(u.id)) {
+      if (blockRes.ok && blockRes.blocked && blockRes.blocked.includes(AppUser.id)) {
         if (notice) notice.style.display = 'block';
         area.innerHTML = '';
         return;
@@ -161,10 +155,11 @@ async function sendAI() {
   if (typing) typing.style.display = 'flex';
 
   AI.history.push({ role: 'user', content: txt, time: fmtTime() });
+  AI.saveHistory();
   renderAIMessages();
 
   try {
-    const reply = await AI.send(txt);
+    await AI.send(txt);
     renderAIMessages();
     const tc = document.querySelector('.ai-token-count');
     if (tc) tc.textContent = AI.history.length + ' mensagens no histórico';
@@ -226,13 +221,16 @@ function showAIConfig() {
         <input id="ai-tokens" type="range" min="256" max="4096" step="256" value="${AI.maxTokens}"/>
       </div>
       <button class="btn sec sm" onclick="saveAIConfig()">▣ Salvar configuração</button>
+      <button class="btn sm" onclick="clearAIKey()" style="margin-left:.5rem">Limpar API Key</button>
       <button class="btn sm" onclick="showAIChat()" style="margin-left:.5rem">← Voltar ao chat</button>
     </div>`;
 }
 
 function showAIChat() {
-  document.getElementById('ai-config-area').style.display = 'none';
-  document.getElementById('ai-chat-area').style.display = '';
+  const configArea = document.getElementById('ai-config-area');
+  const chatArea = document.getElementById('ai-chat-area');
+  if (configArea) configArea.style.display = 'none';
+  if (chatArea) chatArea.style.display = '';
   renderAIChat();
 }
 
@@ -243,11 +241,18 @@ function saveAIConfig() {
   const temp = parseFloat(document.getElementById('ai-temp')?.value);
   const tokens = parseInt(document.getElementById('ai-tokens')?.value);
   if (url) { AI.apiUrl = url; localStorage.setItem('vault_ai_url', url); }
-  if (key) AI.saveKey(key);
+  if (key !== undefined) AI.saveKey(key);
   if (model) { AI.model = model; localStorage.setItem('vault_ai_model', model); }
   if (!isNaN(temp)) { AI.temperature = temp; localStorage.setItem('vault_ai_temp', temp); }
   if (!isNaN(tokens)) { AI.maxTokens = tokens; localStorage.setItem('vault_ai_tokens', tokens); }
   toast('Configuração salva!', 'ok');
+}
+
+function clearAIKey() {
+  AI.clearKey();
+  const keyInput = document.getElementById('ai-api-key');
+  if (keyInput) keyInput.value = '';
+  toast('API Key removida.', 'ok');
 }
 
 function renderAIHistory() {

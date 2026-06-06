@@ -6,7 +6,7 @@ const router = express.Router();
 let db, genId, now;
 function lazy() { if (!db) { const d = require('../db'); db = d.db(); genId = d.genId; now = d.now; } }
 
-const { validateRegister, validateLogin, sanitize } = require('../middleware/validate');
+const { validateRegister, validateLogin } = require('../middleware/validate');
 const { loginLimiter, registerLimiter } = require('../middleware/rateLimit');
 
 router.post('/register', registerLimiter, validateRegister, async (req, res) => {
@@ -23,19 +23,19 @@ router.post('/register', registerLimiter, validateRegister, async (req, res) => 
 
   await db.prepare(`INSERT INTO users (id, name, email, password_hash, role, avatar, color, created, settings)
     VALUES (?, ?, ?, ?, 'user', ?, ?, ?, '{}')`)
-    .run(id, sanitize(name), email, hash, initials, colors[Math.floor(Math.random() * colors.length)], created);
+    .run(id, name, email, hash, initials, colors[Math.floor(Math.random() * colors.length)], created);
 
   await db.prepare(`INSERT INTO notifications (id, user_id, icon, message, timestamp, read)
     VALUES (?, ?, '🎉', ?, ?, 0)`)
     .run(genId('n'), id, 'Conta criada! Bem-vindo ao Vault.', now());
 
   await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('REGISTER', ?, ?, ?)`)
-    .run(sanitize(name), email, now());
+    .run(name, email, now());
 
   req.session.userId = id;
   req.session.role = 'user';
 
-  res.json({ ok: true, user: { id, name: sanitize(name), email, avatar: initials, color: colors[Math.floor(Math.random() * colors.length)] } });
+  res.json({ ok: true, user: { id, name, email, avatar: initials, color: colors[Math.floor(Math.random() * colors.length)] } });
 });
 
 router.post('/login', loginLimiter, validateLogin, async (req, res) => {
@@ -136,6 +136,7 @@ router.post('/recovery', async (req, res) => {
   if (!name || !email) return res.status(400).json({ error: 'Preencha nome e email.' });
   const user = await db.prepare('SELECT id FROM users WHERE email = ?').get(email);
   const id = genId('r');
+  const { sanitize } = require('../middleware/validate');
   await db.prepare('INSERT INTO recovery_requests (id, name, email, message, user_id, date, status) VALUES (?, ?, ?, ?, ?, ?, ?)')
     .run(id, sanitize(name), email, message || '', user?.id || null, new Date().toLocaleString('pt-BR'), 'pending');
   await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('RECOVERY_REQ', ?, ?, ?)`)

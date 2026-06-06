@@ -37,13 +37,11 @@
   <canvas id="particles"></canvas>
   <div class="hero-c">
     <div class="hero-inner">
-      <!-- Lado esquerdo: Logo grande + nome + tagline -->
       <div class="hero-left">
         <img src="img/icon.png" alt="ChatVault" class="hero-logo"/>
         <h1 class="drift">Chat<span class="hl">Vault</span></h1>
         <p class="hero-tagline">SEGURANÇA. PRIVACIDADE. LIBERDADE.</p>
       </div>
-      <!-- Lado direito: Logo variants + card descritivo -->
       <div class="hero-right">
         <div class="logo-showcase">
           <div class="logo-card logo-card-purple"><img src="img/icon.png" alt="ChatVault"/></div>
@@ -56,7 +54,6 @@
         </div>
       </div>
     </div>
-    <!-- Descrição + CTA centralizado abaixo -->
     <p class="hero-sub sr sr-d1">Seu espaço seguro para conversas e arquivos. Mensagens criptografadas com AES-256-GCM real, armazenamento seguro e total privacidade.</p>
     <div class="hero-btns sr sr-d2">
       <button class="btn pri lg ripple" onclick="go('p-login')">Acessar plataforma →</button>
@@ -97,6 +94,7 @@
         <div class="tab" onclick="switchTab('register')">Criar conta</div>
       </div>
       <div id="auth-login">
+        <div id="login-err"></div>
         <div class="field"><label>Email</label><input id="login-user" type="email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
         <div class="field"><label>Senha</label>
           <div class="toggle-pw"><input id="login-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/><button class="eye-btn ripple" onclick="togglePw('login-pass',this)">◎</button></div>
@@ -105,6 +103,7 @@
         <div class="auth-foot"><a onclick="go('p-recovery')">Esqueceu a senha? Recuperar</a></div>
       </div>
       <div id="auth-register" style="display:none">
+        <div id="reg-err"></div>
         <div class="field"><label>Nome</label><input id="reg-user" type="text" placeholder="Seu nome"/></div>
         <div class="field"><label>Email</label><input id="reg-email" type="email" placeholder="seu@email.com"/></div>
         <div class="field"><label>Senha</label>

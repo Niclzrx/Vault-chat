@@ -8,8 +8,11 @@
 const Session = {
   _lastActivity: Date.now(),
   _timer: null,
+  _started: false,
   touch() { this._lastActivity = Date.now(); },
   start() {
+    if (this._started) return;
+    this._started = true;
     document.addEventListener('click', () => this.touch(), { passive: true });
     document.addEventListener('keydown', () => this.touch(), { passive: true });
     document.addEventListener('mousemove', () => this.touch(), { passive: true });
@@ -21,17 +24,18 @@ const Session = {
       }
     }, 30000);
   },
-  stop() { clearInterval(this._timer); }
+  stop() {
+    this._started = false;
+    clearInterval(this._timer);
+  }
 };
 
 const AdminTrigger = {
   _count: 0, _timer: null,
-  // Key sequence fallback: type "vault" anywhere on login page
   _seq: '', _seqTarget: 'vault',
   init() {
     const ghost = document.getElementById('admin-ghost');
     if (ghost) ghost.addEventListener('click', () => this._onClick());
-    // Keyboard shortcut on login page: type "vault" in sequence
     document.addEventListener('keydown', (e) => {
       const page = document.getElementById('p-login');
       if (!page || !page.classList.contains('active')) { this._seq = ''; return; }

@@ -3,8 +3,8 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const router = express.Router();
-let db, now;
-function lazy() { if (!db) { const d = require('../db'); db = d.db(); now = d.now; } }
+let db, genId, now;
+function lazy() { if (!db) { const d = require('../db'); db = d.db(); genId = d.genId; now = d.now; } }
 
 const { requireAdmin } = require('../middleware/auth');
 const { sanitize } = require('../middleware/validate');
@@ -38,7 +38,7 @@ router.put('/users/:id/ban', requireAdmin, async (req, res) => {
     .run(reason || '', until, req.params.id);
 
   await db.prepare('INSERT INTO notifications (id, user_id, icon, message, timestamp, read) VALUES (?, ?, ?, ?, ?, 0)')
-    .run('n' + Date.now(), req.params.id, '⊘', `Sua conta foi suspensa. Motivo: ${reason || 'Violação dos termos'}`, now());
+    .run(genId('n'), req.params.id, '⊘', `Sua conta foi suspensa. Motivo: ${reason || 'Violação dos termos'}`, now());
 
   await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('BAN', ?, ?, ?)`)
     .run(user.name, reason || 'sem motivo', now());
@@ -53,7 +53,7 @@ router.put('/users/:id/unban', requireAdmin, async (req, res) => {
 
   await db.prepare('UPDATE users SET banned = 0, ban_reason = ?, banned_until = NULL WHERE id = ?').run('', req.params.id);
   await db.prepare('INSERT INTO notifications (id, user_id, icon, message, timestamp, read) VALUES (?, ?, ?, ?, ?, 0)')
-    .run('n' + Date.now(), req.params.id, '✓', 'Sua suspensão foi removida.', now());
+    .run(genId('n'), req.params.id, '✓', 'Sua suspensão foi removida.', now());
 
   await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('UNBAN', ?, '', ?)`)
     .run(user.name, now());
@@ -68,7 +68,7 @@ router.put('/users/:id/kick', requireAdmin, async (req, res) => {
 
   await db.prepare('UPDATE users SET online = 0 WHERE id = ?').run(req.params.id);
   await db.prepare('INSERT INTO notifications (id, user_id, icon, message, timestamp, read) VALUES (?, ?, ?, ?, ?, 0)')
-    .run('n' + Date.now(), req.params.id, '🔌', 'Você foi desconectado pelo administrador.', now());
+    .run(genId('n'), req.params.id, '🔌', 'Você foi desconectado pelo administrador.', now());
 
   await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('KICK', ?, 'desconectado pelo admin', ?)`)
     .run(user.name, now());
@@ -83,7 +83,7 @@ router.put('/users/:id/grant-admin', requireAdmin, async (req, res) => {
 
   await db.prepare('UPDATE users SET admin_granted = 1 WHERE id = ?').run(req.params.id);
   await db.prepare('INSERT INTO notifications (id, user_id, icon, message, timestamp, read) VALUES (?, ?, ?, ?, ?, 0)')
-    .run('n' + Date.now(), req.params.id, '★', 'Privilégios de administrador concedidos!', now());
+    .run(genId('n'), req.params.id, '★', 'Privilégios de administrador concedidos!', now());
 
   await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('ADMIN_GRANT', ?, '', ?)`)
     .run(user.name, now());
@@ -127,7 +127,7 @@ router.put('/recovery/:id', requireAdmin, async (req, res) => {
     const hash = bcrypt.hashSync(new_password, 12);
     await db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hash, req_.user_id);
     await db.prepare('INSERT INTO notifications (id, user_id, icon, message, timestamp, read) VALUES (?, ?, ?, ?, ?, 0)')
-      .run('n' + Date.now(), req_.user_id, '✉', 'Sua senha foi redefinida pelo administrador.', now());
+      .run(genId('n'), req_.user_id, '✉', 'Sua senha foi redefinida pelo administrador.', now());
   }
 
   await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('RECOVERY_RESOLVE', ?, ?, ?)`)
@@ -144,13 +144,13 @@ router.put('/ai-block/:id', requireAdmin, async (req, res) => {
   if (existing) {
     await db.prepare('DELETE FROM ai_blocked WHERE user_id = ?').run(userId);
     await db.prepare('INSERT INTO notifications (id, user_id, icon, message, timestamp, read) VALUES (?, ?, ?, ?, ?, 0)')
-      .run('n' + Date.now(), userId, '✓', 'Seu acesso ao assistente IA foi liberado.', now());
+      .run(genId('n'), userId, '✓', 'Seu acesso ao assistente IA foi liberado.', now());
     await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('AI_UNBLOCK', ?, '', ?)`)
       .run((await db.prepare('SELECT name FROM users WHERE id = ?').get(userId))?.name || '?', now());
   } else {
     await db.prepare('INSERT INTO ai_blocked (user_id) VALUES (?)').run(userId);
     await db.prepare('INSERT INTO notifications (id, user_id, icon, message, timestamp, read) VALUES (?, ?, ?, ?, ?, 0)')
-      .run('n' + Date.now(), userId, '⊘', 'Seu acesso ao assistente IA foi bloqueado.', now());
+      .run(genId('n'), userId, '⊘', 'Seu acesso ao assistente IA foi bloqueado.', now());
     await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('AI_BLOCK', ?, 'bloqueado da IA', ?)`)
       .run((await db.prepare('SELECT name FROM users WHERE id = ?').get(userId))?.name || '?', now());
   }
@@ -199,7 +199,19 @@ router.post('/export', requireAdmin, async (req, res) => {
 
 router.post('/reset', requireAdmin, async (req, res) => {
   lazy();
-  db.exec('DELETE FROM messages; DELETE FROM group_messages; DELETE FROM group_members; DELETE FROM groups_t; DELETE FROM notifications; DELETE FROM sys_logs; DELETE FROM recovery_requests; DELETE FROM ai_blocked;');
+  const stmts = [
+    'DELETE FROM messages',
+    'DELETE FROM group_messages',
+    'DELETE FROM group_members',
+    'DELETE FROM groups_t',
+    'DELETE FROM notifications',
+    'DELETE FROM sys_logs',
+    'DELETE FROM recovery_requests',
+    'DELETE FROM ai_blocked'
+  ];
+  for (const sql of stmts) {
+    await db.prepare(sql).run();
+  }
   await db.prepare('UPDATE users SET online = 0, banned = 0, ban_reason = ?, banned_until = NULL, admin_granted = 0').run('');
   await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('SYSTEM_RESET', 'admin', 'todos os dados resetados', ?)`)
     .run(now());

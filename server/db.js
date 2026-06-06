@@ -136,10 +136,10 @@ function seedSQLite() {
     { id: 'u3', name: 'Carla Dias', email: 'carla@vault.app', pass: 'Carla@123456', color: '#69f0ae', avatar: 'CD' }
   ];
   const insertUser = db.prepare(`INSERT INTO users (id, name, email, password_hash, role, avatar, color, online, created, last_login, settings) VALUES (?, ?, ?, ?, 'user', ?, ?, 0, ?, 'nunca', '{}')`);
-  const now = new Date().toLocaleDateString('pt-BR');
+  const nowDate = new Date().toLocaleDateString('pt-BR');
   for (const u of demoUsers) {
     const hash = bcrypt.hashSync(u.pass, SALT_ROUNDS);
-    insertUser.run(u.id, u.name, u.email, hash, u.avatar, u.color, now);
+    insertUser.run(u.id, u.name, u.email, hash, u.avatar, u.color, nowDate);
   }
   const adminHash = bcrypt.hashSync(process.env.ADMIN_PASS || 'Adm!n@V4ult_2026!', SALT_ROUNDS);
   db.prepare('INSERT INTO admins (id, name, password_hash) VALUES (?, ?, ?)').run(process.env.ADMIN_ID || 'root', process.env.ADMIN_NAME || 'Vault Admin', adminHash);
@@ -153,8 +153,8 @@ async function initPG(url) {
 
   const client = await pool.connect();
   try {
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS users (
+    const tables = [
+      `CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         email TEXT UNIQUE NOT NULL,
@@ -170,13 +170,13 @@ async function initPG(url) {
         banned_until TEXT DEFAULT NULL,
         admin_granted INTEGER DEFAULT 0,
         settings TEXT DEFAULT '{}'
-      );
-      CREATE TABLE IF NOT EXISTS admins (
+      )`,
+      `CREATE TABLE IF NOT EXISTS admins (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         password_hash TEXT NOT NULL
-      );
-      CREATE TABLE IF NOT EXISTS messages (
+      )`,
+      `CREATE TABLE IF NOT EXISTS messages (
         id TEXT PRIMARY KEY,
         from_id TEXT NOT NULL,
         to_id TEXT NOT NULL,
@@ -185,21 +185,21 @@ async function initPG(url) {
         msg_type TEXT DEFAULT 'text',
         timestamp TEXT,
         read INTEGER DEFAULT 0
-      );
-      CREATE TABLE IF NOT EXISTS groups_t (
+      )`,
+      `CREATE TABLE IF NOT EXISTS groups_t (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         creator_id TEXT NOT NULL,
         icon TEXT DEFAULT '◗',
         created TEXT
-      );
-      CREATE TABLE IF NOT EXISTS group_members (
+      )`,
+      `CREATE TABLE IF NOT EXISTS group_members (
         group_id TEXT NOT NULL,
         user_id TEXT NOT NULL,
         is_admin INTEGER DEFAULT 0,
         PRIMARY KEY (group_id, user_id)
-      );
-      CREATE TABLE IF NOT EXISTS group_messages (
+      )`,
+      `CREATE TABLE IF NOT EXISTS group_messages (
         id TEXT PRIMARY KEY,
         group_id TEXT NOT NULL,
         from_id TEXT NOT NULL,
@@ -207,23 +207,23 @@ async function initPG(url) {
         encrypted_image TEXT DEFAULT '',
         msg_type TEXT DEFAULT 'text',
         timestamp TEXT
-      );
-      CREATE TABLE IF NOT EXISTS sys_logs (
+      )`,
+      `CREATE TABLE IF NOT EXISTS sys_logs (
         id SERIAL PRIMARY KEY,
         event TEXT,
         user_name TEXT,
         detail TEXT,
         timestamp TEXT
-      );
-      CREATE TABLE IF NOT EXISTS notifications (
+      )`,
+      `CREATE TABLE IF NOT EXISTS notifications (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
         icon TEXT,
         message TEXT,
         timestamp TEXT,
         read INTEGER DEFAULT 0
-      );
-      CREATE TABLE IF NOT EXISTS recovery_requests (
+      )`,
+      `CREATE TABLE IF NOT EXISTS recovery_requests (
         id TEXT PRIMARY KEY,
         name TEXT,
         email TEXT,
@@ -231,21 +231,25 @@ async function initPG(url) {
         user_id TEXT,
         date TEXT,
         status TEXT DEFAULT 'pending'
-      );
-      CREATE TABLE IF NOT EXISTS ai_blocked (
+      )`,
+      `CREATE TABLE IF NOT EXISTS ai_blocked (
         user_id TEXT PRIMARY KEY
-      );
-      CREATE TABLE IF NOT EXISTS blocked_users (
+      )`,
+      `CREATE TABLE IF NOT EXISTS blocked_users (
         blocker_id TEXT NOT NULL,
         blocked_id TEXT NOT NULL,
         created TEXT,
         PRIMARY KEY (blocker_id, blocked_id)
-      );
-      CREATE INDEX IF NOT EXISTS idx_messages_from ON messages(from_id);
-      CREATE INDEX IF NOT EXISTS idx_messages_to ON messages(to_id);
-      CREATE INDEX IF NOT EXISTS idx_group_messages_group ON group_messages(group_id);
-      CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
-    `);
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_messages_from ON messages(from_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_messages_to ON messages(to_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_group_messages_group ON group_messages(group_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id)`
+    ];
+
+    for (const sql of tables) {
+      await client.query(sql);
+    }
 
     const userCount = (await client.query('SELECT COUNT(*) as c FROM users')).rows[0].c;
     if (parseInt(userCount) === 0) {
@@ -253,12 +257,12 @@ async function initPG(url) {
         { id: 'u2', name: 'Bruno Costa', email: 'bruno@vault.app', pass: 'Bruno@123456', color: '#1de9b6', avatar: 'BC' },
         { id: 'u3', name: 'Carla Dias', email: 'carla@vault.app', pass: 'Carla@123456', color: '#69f0ae', avatar: 'CD' }
       ];
-      const now = new Date().toLocaleDateString('pt-BR');
+      const nowDate = new Date().toLocaleDateString('pt-BR');
       for (const u of demoUsers) {
         const hash = bcrypt.hashSync(u.pass, SALT_ROUNDS);
         await client.query(
           'INSERT INTO users (id, name, email, password_hash, role, avatar, color, online, created, last_login, settings) VALUES ($1,$2,$3,$4,$5,$6,$7,0,$8,\'nunca\',\'{}\')',
-          [u.id, u.name, u.email, hash, 'user', u.avatar, u.color, now]
+          [u.id, u.name, u.email, hash, 'user', u.avatar, u.color, nowDate]
         );
       }
       const adminHash = bcrypt.hashSync(process.env.ADMIN_PASS || 'Adm!n@V4ult_2026!', SALT_ROUNDS);
@@ -292,14 +296,14 @@ function createPGWrapper(pool) {
           return pool.query(converted, params).then(r => r.rows[0] || undefined).catch(() => undefined);
         },
         run(...params) {
-          return pool.query(converted, params).then(() => ({ changes: 1 })).catch(() => ({ changes: 0 }));
+          return pool.query(converted, params).then(r => ({ changes: r.rowCount || 0 })).catch(() => ({ changes: 0 }));
         }
       };
     },
 
     exec(sql) {
       const stmts = sql.split(';').map(s => s.trim()).filter(Boolean);
-      return Promise.all(stmts.map(s => pool.query(s))).then(() => {});
+      return stmts.reduce((prev, s) => prev.then(() => pool.query(s)), Promise.resolve()).then(() => {});
     }
   };
 }
@@ -316,7 +320,7 @@ function genId(prefix = '') {
 
 function now() {
   const d = new Date();
-  return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
 function dateNow() {

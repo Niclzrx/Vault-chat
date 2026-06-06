@@ -96,6 +96,14 @@ function updateTicker() {
           setEl('tk-on', '● ' + on + ' online');
         }
       }
+      const msgRes = await API.get('/api/auth/me');
+      if (msgRes.ok && msgRes.type === 'user') {
+        const msgCount = await API.get('/api/users/unread');
+        if (msgCount.ok) {
+          const total = Object.values(msgCount.counts).reduce((a, b) => a + b, 0);
+          setEl('tk-msgs', total);
+        }
+      }
     } catch (_) {}
   }, 10000);
 }

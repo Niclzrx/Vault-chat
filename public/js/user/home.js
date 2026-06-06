@@ -41,22 +41,15 @@ function openUserDash() {
     }
   }
   
-  // Update sidebar user info
-  const sideUser = document.querySelector('.side-user');
-  if (!sideUser) {
-    const side = document.querySelector('#p-user .side');
-    if (side) {
-      const userDiv = document.createElement('div');
-      userDiv.className = 'side-user';
-      userDiv.innerHTML = `
-        <div class="side-user-av" style="background:${AppUser.color}">${sanitize(AppUser.avatar || AppUser.name?.[0] || '?')}</div>
-        <div class="side-user-info">
-          <div class="side-user-name">${sanitize(AppUser.name)}</div>
-          <div class="side-user-status">Online</div>
-        </div>
-      `;
-      side.appendChild(userDiv);
-    }
+  const sideUser = document.getElementById('side-user-info');
+  if (sideUser) {
+    sideUser.innerHTML = `
+      <div class="side-user-av" style="background:${AppUser.color}">${sanitize(AppUser.avatar || AppUser.name?.[0] || '?')}</div>
+      <div class="side-user-info">
+        <div class="side-user-name">${sanitize(AppUser.name)}</div>
+        <div class="side-user-status">Online</div>
+      </div>
+    `;
   }
   
   go('p-user');

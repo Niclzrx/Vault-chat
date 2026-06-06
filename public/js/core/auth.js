@@ -33,6 +33,7 @@ async function doRegister() {
     const res = await API.register(name, email, pass, pass2);
     AppUser = res.user;
     connectSocket();
+    Session.start();
     updateTicker();
     openUserDash();
     toast('Conta criada! Bem-vindo(a)!', 'ok');

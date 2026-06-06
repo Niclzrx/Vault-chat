@@ -5,8 +5,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const router = express.Router();
-let db, genId;
-function lazy() { if (!db) { const d = require('../db'); db = d.db(); genId = d.genId; } }
+let db, genId, now;
+function lazy() { if (!db) { const d = require('../db'); db = d.db(); genId = d.genId; now = d.now; } }
 
 const { requireAuth } = require('../middleware/auth');
 
@@ -57,7 +57,7 @@ router.post('/upload', requireAuth, upload.single('file'), async (req, res) => {
   try { await db.exec(`CREATE TABLE IF NOT EXISTS vault_files (id TEXT PRIMARY KEY, user_id TEXT, original_name TEXT, stored_name TEXT, type TEXT, size INTEGER, uploaded TEXT)`); } catch(_) {}
 
   await db.prepare('INSERT INTO vault_files (id, user_id, original_name, stored_name, type, size, uploaded) VALUES (?, ?, ?, ?, ?, ?, ?)')
-    .run(id, userId, req.file.originalname, req.file.filename, req.file.mimetype, req.file.size, new Date().toISOString());
+    .run(id, userId, req.file.originalname, req.file.filename, req.file.mimetype, req.file.size, now());
 
   res.json({ ok: true, file: { id, name: req.file.originalname, size: req.file.size, type: req.file.mimetype } });
 });

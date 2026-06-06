@@ -35,10 +35,20 @@ if (useHTTPS) {
   console.log('[VAULT] HTTP (sem HTTPS — certificados não encontrados em certs/)');
 }
 
-const io = new Server(server, { cors: { origin: true, credentials: true }, maxHttpBufferSize: 10e6 });
-
 const PORT = process.env.PORT || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim())
+  : ['http://localhost:' + PORT, 'https://vault-chat-nlu3.onrender.com'];
+
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true
+  },
+  maxHttpBufferSize: 10e6
+});
 
 (async () => {
   await initDB();
@@ -51,7 +61,16 @@ app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false
 }));
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -120,11 +139,7 @@ io.on('connection', (socket) => {
   if (userId) {
     onlineUsers.set(userId, socket.id);
     const db = getDb();
-    if (db._pool) {
-      db.prepare('UPDATE users SET online = 1 WHERE id = ?').run(userId);
-    } else {
-      db.prepare('UPDATE users SET online = 1 WHERE id = ?').run(userId);
-    }
+    db.prepare('UPDATE users SET online = 1 WHERE id = ?').run(userId);
     io.emit('user:online', { userId, online: true });
   }
 

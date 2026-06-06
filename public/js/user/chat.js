@@ -8,8 +8,20 @@ let _chatMsgs = [];
 let _convKey = '';
 let _blockedByMe = false;
 let _blockedMe = false;
+let _chatBlobUrls = [];
 
-function stopChatPool() { currentChatTarget = null; _convKey = ''; _blockedByMe = false; _blockedMe = false; }
+function stopChatPool() {
+  currentChatTarget = null;
+  _convKey = '';
+  _blockedByMe = false;
+  _blockedMe = false;
+  revokeChatBlobs();
+}
+
+function revokeChatBlobs() {
+  _chatBlobUrls.forEach(url => { try { URL.revokeObjectURL(url); } catch (_) {} });
+  _chatBlobUrls = [];
+}
 
 async function decryptMsg(m) {
   if (blurMode) {
@@ -22,6 +34,7 @@ async function decryptMsg(m) {
       if (buf) {
         const blob = new Blob([buf]);
         m._imgUrl = URL.createObjectURL(blob);
+        _chatBlobUrls.push(m._imgUrl);
         m.decrypted = null;
       } else {
         m.decrypted = 'Erro ao descriptografar imagem';
@@ -93,6 +106,10 @@ async function refreshContactBadges() {
     if (!container) return;
     const contacts = res.contacts;
     container.innerHTML = contacts.map(c => contactItem(c)).join('');
+    if (currentChatTarget) {
+      const activeItem = container.querySelector(`.contact-item[data-uid="${currentChatTarget}"]`);
+      if (activeItem) activeItem.classList.add('active');
+    }
   } catch (_) {}
 }
 
@@ -191,6 +208,7 @@ async function openChat(uid) {
   _convKey = [AppUser.id, uid].sort().join('_');
   _blockedByMe = false;
   _blockedMe = false;
+  revokeChatBlobs();
 
   document.querySelectorAll('.contact-item').forEach(c => {
     c.classList.toggle('active', c.dataset.uid === uid);
@@ -320,7 +338,7 @@ async function sendMsg() {
     AppSocket.emit('chat:typing', { to: currentChatTarget });
   } else {
     await API.sendMessage(currentChatTarget, enc);
-    openChat(currentChatTarget);
+    await openChat(currentChatTarget);
   }
 }
 
@@ -330,7 +348,7 @@ async function sendImage(fileInput) {
   fileInput.value = '';
 
   if (file.size > 5 * 1024 * 1024) {
-    toast('Imagem muito grande (max 5MB)', 'error');
+    toast('Imagem muito grande (max 5MB)', 'err');
     return;
   }
 
@@ -342,10 +360,10 @@ async function sendImage(fileInput) {
       AppSocket.emit('chat:send', { to: currentChatTarget, encrypted_image: encImg, msg_type: 'image' });
     } else {
       await API.sendMessage(currentChatTarget, '', encImg, 'image');
-      openChat(currentChatTarget);
+      await openChat(currentChatTarget);
     }
   } catch (_) {
-    toast('Erro ao criptografar imagem', 'error');
+    toast('Erro ao criptografar imagem', 'err');
   }
 }
 
@@ -363,7 +381,7 @@ async function blockUser(uid) {
       if (currentChatTarget === uid) openChat(uid);
     }
   } catch (_) {
-    toast('Erro ao bloquear', 'error');
+    toast('Erro ao bloquear', 'err');
   }
 }
 
@@ -375,7 +393,7 @@ async function unblockUser(uid) {
       if (currentChatTarget === uid) openChat(uid);
     }
   } catch (_) {
-    toast('Erro ao desbloquear', 'error');
+    toast('Erro ao desbloquear', 'err');
   }
 }
 
@@ -399,7 +417,7 @@ async function deleteMsg(msgId) {
       renderChatMessages();
     }
   } catch (_) {
-    toast('Erro ao apagar mensagem', 'error');
+    toast('Erro ao apagar mensagem', 'err');
   }
 }
 
@@ -413,6 +431,6 @@ async function deleteConversation(uid) {
       toast('Conversa apagada', 'info');
     }
   } catch (_) {
-    toast('Erro ao apagar conversa', 'error');
+    toast('Erro ao apagar conversa', 'err');
   }
 }

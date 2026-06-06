@@ -26,7 +26,6 @@ async function renderNotif(u, el) {
         </div>
       </div>
     `;
-    API.markAllNotificationsRead().catch(() => {});
     updateNotifDot();
   } catch (_) {
     el.innerHTML = '<div class="empty">Erro ao carregar notificações.</div>';
