@@ -6,3 +6,4 @@ vault.db-wal
 vault.db-shm
 .env
 *.txt
+!robots.txt

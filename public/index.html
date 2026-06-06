@@ -3,8 +3,66 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ChatVault — Segurança. Privacidade. Liberdade.</title>
+
+<!-- SEO Meta Tags -->
+<title>ChatVault — Chat Seguro com Criptografia AES-256 | Mensagens Privadas</title>
+<meta name="description" content="ChatVault é a plataforma de chat seguro com criptografia AES-256-GCM de ponta a ponta. Mensagens privadas, armazenamento de arquivos criptografados e conversas em tempo real. Sua privacidade é nossa prioridade."/>
+<meta name="keywords" content="chat seguro, mensagens criptografadas, chat privado, criptografia AES-256, messenger seguro, conversas privadas, chat encriptado, segurança digital, privacidade online, chat com criptografia"/>
+<meta name="author" content="ChatVault"/>
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/>
+<meta name="theme-color" content="#9b59b6"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="ChatVault"/>
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://vault-chat-nlu3.onrender.com/"/>
+<meta property="og:title" content="ChatVault — Chat Seguro com Criptografia AES-256"/>
+<meta property="og:description" content="Plataforma de chat seguro com criptografia AES-256-GCM de ponta a ponta. Mensagens privadas, arquivos criptografados e conversas em tempo real."/>
+<meta property="og:image" content="img/icon.png"/>
+<meta property="og:site_name" content="ChatVault"/>
+<meta property="og:locale" content="pt_BR"/>
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:url" content="https://vault-chat-nlu3.onrender.com/"/>
+<meta name="twitter:title" content="ChatVault — Chat Seguro com Criptografia AES-256"/>
+<meta name="twitter:description" content="Plataforma de chat seguro com criptografia AES-256-GCM de ponta a ponta. Mensagens privadas e total segurança."/>
+<meta name="twitter:image" content="img/icon.png"/>
+
+<!-- Canonical -->
+<link rel="canonical" href="https://vault-chat-nlu3.onrender.com/"/>
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "ChatVault",
+  "url": "https://vault-chat-nlu3.onrender.com",
+  "description": "Plataforma de chat seguro com criptografia AES-256-GCM de ponta a ponta. Mensagens privadas, arquivos criptografados e conversas em tempo real.",
+  "applicationCategory": "CommunicationApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "BRL"
+  },
+  "featureList": [
+    "Criptografia AES-256-GCM de ponta a ponta",
+    "Mensagens em tempo real",
+    "Armazenamento seguro de arquivos",
+    "Chat com inteligência artificial",
+    "Grupos criptografados",
+    "Total privacidade"
+  ],
+  "screenshot": "https://vault-chat-nlu3.onrender.com/img/icon.png"
+}
+</script>
+
 <link rel="icon" href="img/icon.png"/>
+<link rel="manifest" href="manifest.json"/>
 <link rel="stylesheet" href="css/base.css"/>
 <link rel="stylesheet" href="css/layout.css"/>
 <link rel="stylesheet" href="css/components.css"/>
@@ -25,7 +83,7 @@
 <div class="page active" id="p-land">
 <nav>
   <div class="brand" onclick="go('p-land')">
-    <img src="img/icon.png" alt="ChatVault" class="brand-icon-img"/>
+    <img src="img/icon.png" alt="ChatVault - Chat Seguro" class="brand-icon-img"/>
     <span class="brand-text">Chat<span class="brand-vault">Vault</span></span>
   </div>
   <div class="nav-r">
@@ -38,15 +96,15 @@
   <div class="hero-c">
     <div class="hero-inner">
       <div class="hero-left">
-        <img src="img/icon.png" alt="ChatVault" class="hero-logo"/>
+        <img src="img/icon.png" alt="ChatVault - Plataforma de Chat Seguro" class="hero-logo"/>
         <h1 class="drift">Chat<span class="hl">Vault</span></h1>
         <p class="hero-tagline">SEGURANÇA. PRIVACIDADE. LIBERDADE.</p>
       </div>
       <div class="hero-right">
         <div class="logo-showcase">
-          <div class="logo-card logo-card-purple"><img src="img/icon.png" alt="ChatVault"/></div>
-          <div class="logo-card logo-card-purple2"><img src="img/icon.png" alt="ChatVault"/></div>
-          <div class="logo-card logo-card-gold"><img src="img/icon.png" alt="ChatVault"/></div>
+          <div class="logo-card logo-card-purple"><img src="img/icon.png" alt="ChatVault Criptografia"/></div>
+          <div class="logo-card logo-card-purple2"><img src="img/icon.png" alt="ChatVault Privacidade"/></div>
+          <div class="logo-card logo-card-gold"><img src="img/icon.png" alt="ChatVault Segurança"/></div>
           <div class="logo-card-desc">
             <span class="logo-desc-brand">Chat<span style="color:var(--gold)">Vault</span></span>
             <span class="logo-desc-text">Seu espaço seguro para conversas e arquivos.</span>
@@ -54,18 +112,18 @@
         </div>
       </div>
     </div>
-    <p class="hero-sub sr sr-d1">Seu espaço seguro para conversas e arquivos. Mensagens criptografadas com AES-256-GCM real, armazenamento seguro e total privacidade.</p>
+    <p class="hero-sub sr sr-d1">Plataforma de chat seguro com criptografia AES-256-GCM de ponta a ponta. Suas mensagens, arquivos e conversas são protegidos com a mesma tecnologia usada por bancos e governos. Privacidade real, não promessas.</p>
     <div class="hero-btns sr sr-d2">
-      <button class="btn pri lg ripple" onclick="go('p-login')">Acessar plataforma →</button>
+      <button class="btn pri lg ripple" onclick="go('p-login')">Comece agora grátis →</button>
     </div>
   </div>
 </div>
 <div class="feat-bar stag">
   <div class="feat-item"><span class="feat-item-icon">🔐</span><span>Criptografia<br/><b>AES-256-GCM</b></span></div>
-  <div class="feat-item"><span class="feat-item-icon">💬</span><span>Conversas<br/><b>em tempo real</b></span></div>
-  <div class="feat-item"><span class="feat-item-icon">📁</span><span>Armazenamento<br/><b>seguro</b></span></div>
-  <div class="feat-item"><span class="feat-item-icon">📎</span><span>Arquivos<br/><b>criptografados</b></span></div>
+  <div class="feat-item"><span class="feat-item-icon">💬</span><span>Chat<br/><b>em tempo real</b></span></div>
+  <div class="feat-item"><span class="feat-item-icon">📁</span><span>Arquivos<br/><b>criptografados</b></span></div>
   <div class="feat-item"><span class="feat-item-icon">🛡️</span><span>Privacidade<br/><b>total</b></span></div>
+  <div class="feat-item"><span class="feat-item-icon">🤖</span><span>IA<br/><b>integrada</b></span></div>
 </div>
 <div class="ticker">
   <span>Sistema ativo <b>●</b></span>
