@@ -31,3 +31,29 @@
 .ai-badge { display: inline-flex; align-items: center; gap: .3rem; padding: .12rem .5rem; border-radius: 99px; font-size: .6rem; font-weight: 700; background: var(--ac-dim); color: var(--ac2);   border: 1px solid rgba(155,89,182,.2); }
 .ai-blocked-msg { text-align: center; padding: 2rem; color: var(--t3); font-size: .82rem; }
 .ai-blocked-msg span { display: block; font-size: 2rem; margin-bottom: .5rem; }
+
+/* ── Mobile AI Chat ── */
+@media (max-width: 768px) {
+  .ai-chat-container {
+    height: calc(100vh - 180px);
+    min-height: 300px;
+  }
+  .ai-msg { max-width: 92%; }
+  .ai-msg .ai-bbl { padding: .45rem .7rem; font-size: .75rem; }
+  .ai-input-row { gap: .35rem; margin-top: .5rem; }
+  .ai-input-row textarea {
+    min-height: 40px;
+    max-height: 100px;
+    padding: .5rem .7rem;
+    font-size: .85rem;
+  }
+  .ai-input-row .btn { padding: .3rem .55rem; font-size: .7rem; }
+  .ai-msg .ai-av { width: 26px; height: 26px; font-size: .6rem; }
+  .ai-config-area .card { padding: .85rem; }
+  .ai-config-area .field { margin-bottom: .6rem; }
+  .ai-config-area input, .ai-config-area textarea { font-size: .85rem; padding: .45rem .65rem; }
+  .ai-config-area label { font-size: .62rem; }
+  .ai-config-area .btn { font-size: .7rem; padding: .35rem .7rem; }
+  .ai-token-count { font-size: .56rem; margin-top: .15rem; }
+  .ai-typing { padding: .3rem 0; }
+}
