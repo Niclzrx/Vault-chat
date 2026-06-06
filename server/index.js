@@ -17,6 +17,7 @@ const { init: initDB, db: getDb } = require('./db');
 const { csrfToken } = require('./middleware/auth');
 
 const app = express();
+app.set('trust proxy', 1);
 
 const CERT_DIR = path.join(__dirname, '..', 'certs');
 const useHTTPS = process.env.NODE_ENV !== 'production' && fs.existsSync(path.join(CERT_DIR, 'cert.pem')) && fs.existsSync(path.join(CERT_DIR, 'key.pem'));
@@ -61,7 +62,7 @@ const sessionMiddleware = session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: false,
     sameSite: 'lax',
     maxAge: 24 * 60 * 60 * 1000
   }
