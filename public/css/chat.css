@@ -163,16 +163,17 @@
 
 /* ── Mobile Chat ── */
 @media (max-width: 768px) {
-  .u-chat { flex-direction: column; height: calc(100vh - 52px); }
+  .u-chat { flex-direction: column; height: 100%; min-height: 0; }
   .chat-sidebar {
     width: 100%; max-height: 45vh; border-right: none;
     border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
   }
-  .chat-main { flex: 1; min-height: 0; }
+  .chat-main { flex: 1; min-height: 0; overflow: hidden; }
   .chat-msgs { padding: .5rem; }
   .msg { max-width: 88%; }
   .msg-img { max-width: 200px; max-height: 250px; }
-  .chat-input-area { padding: .4rem .5rem; }
+  .chat-input-area { padding: .4rem .5rem; flex-shrink: 0; }
   .chat-footer-note { display: none; }
   .chat-header-actions { gap: .15rem; }
   .chat-header-actions button { font-size: .75rem; padding: .15rem .25rem; }

@@ -54,3 +54,7 @@
 .group-members { font-size: .65rem; color: var(--t2); }
 .group-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 17px; height: 17px; padding: 0 .24rem; border-radius: 99px; background: var(--danger); color: #fff; font-size: .58rem; font-weight: 700; }
 .group-chat { display: flex; flex-direction: column; height: calc(100vh - 190px); }
+
+@media (max-width: 768px) {
+  .group-chat { height: 100%; min-height: 0; }
+}

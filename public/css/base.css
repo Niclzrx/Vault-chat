@@ -63,6 +63,14 @@ body {
   font-feature-settings: 'cv05' 1, 'cv11' 1;
 }
 
+@media (max-width: 768px) {
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+}
+
 ::-webkit-scrollbar { width: 3px; height: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }

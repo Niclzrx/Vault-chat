@@ -112,3 +112,88 @@ function setEl(id, val) {
   const el = document.getElementById(id);
   if (el) el.textContent = val;
 }
+
+/* ── Mobile Virtual Keyboard Handler ── */
+(function() {
+  if (!window.visualViewport) return;
+  const isMobile = () => window.innerWidth <= 768;
+
+  function adjustLayout() {
+    if (!isMobile()) {
+      document.querySelectorAll('.chat-main, .ai-chat-container, .group-chat').forEach(el => {
+        el.style.height = '';
+        el.style.maxHeight = '';
+      });
+      document.querySelectorAll('.chat-msgs, .ai-msg-wrap').forEach(el => {
+        el.style.maxHeight = '';
+      });
+      return;
+    }
+
+    const vv = window.visualViewport;
+    const activePage = document.querySelector('.page.active');
+    if (!activePage) return;
+
+    const nav = activePage.querySelector('nav');
+    const navH = nav ? nav.offsetHeight : 52;
+    const avail = vv.height - navH;
+
+    activePage.style.height = avail + 'px';
+
+    const dash = activePage.querySelector('.dash');
+    if (dash) {
+      dash.style.height = '100%';
+      dash.style.overflow = 'hidden';
+    }
+
+    const chatMain = activePage.querySelector('.chat-main');
+    if (chatMain) {
+      chatMain.style.height = '100%';
+      chatMain.style.overflow = 'hidden';
+      const chatMsgs = chatMain.querySelector('.chat-msgs');
+      const chatInput = chatMain.querySelector('.chat-input-area');
+      const chatHeader = chatMain.querySelector('.chat-header');
+      const chatFooter = chatMain.querySelector('.chat-footer-note');
+      if (chatMsgs && chatInput) {
+        const headerH = chatHeader ? chatHeader.offsetHeight : 0;
+        const inputH = chatInput.offsetHeight;
+        const footerH = chatFooter ? chatFooter.offsetHeight : 0;
+        chatMsgs.style.maxHeight = Math.max(avail - headerH - inputH - footerH - 20, 100) + 'px';
+        chatMsgs.scrollTop = chatMsgs.scrollHeight;
+      }
+    }
+
+    const aiContainer = activePage.querySelector('.ai-chat-container');
+    if (aiContainer) {
+      aiContainer.style.height = avail + 'px';
+      aiContainer.style.maxHeight = avail + 'px';
+      const aiMsgWrap = aiContainer.querySelector('.ai-msg-wrap');
+      const aiInput = aiContainer.querySelector('.ai-input-row');
+      const aiToken = aiContainer.querySelector('.ai-token-count');
+      const aiTyping = aiContainer.querySelector('.ai-typing');
+      if (aiMsgWrap && aiInput) {
+        const inputH = aiInput.offsetHeight;
+        const tokenH = aiToken ? aiToken.offsetHeight : 18;
+        const typingH = aiTyping && aiTyping.style.display !== 'none' ? aiTyping.offsetHeight : 0;
+        aiMsgWrap.style.maxHeight = Math.max(avail - inputH - tokenH - typingH - 20, 100) + 'px';
+        aiMsgWrap.scrollTop = aiMsgWrap.scrollHeight;
+      }
+    }
+  }
+
+  window.visualViewport.addEventListener('resize', adjustLayout);
+  window.visualViewport.addEventListener('scroll', adjustLayout);
+  window.addEventListener('resize', adjustLayout);
+
+  document.addEventListener('focusin', function(e) {
+    if (e.target && (e.target.id === 'ai-input' || e.target.id === 'chat-input' || e.target.tagName === 'TEXTAREA')) {
+      setTimeout(adjustLayout, 100);
+      setTimeout(adjustLayout, 350);
+    }
+  });
+  document.addEventListener('focusout', function(e) {
+    if (e.target && (e.target.id === 'ai-input' || e.target.id === 'chat-input' || e.target.tagName === 'TEXTAREA')) {
+      setTimeout(adjustLayout, 100);
+    }
+  });
+})();
