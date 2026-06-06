@@ -236,6 +236,7 @@ async function openChat(uid) {
         </div>
         <div class="chat-header-actions">
           <button onclick="toggleBlurMode()" title="Alternar ofuscação">${blurMode ? '🙈' : '🔒'}</button>
+          <button class="chat-delete-conv-btn" onclick="deleteConversation('${uid}')" title="Apagar conversa">🗑</button>
           <button class="chat-block-btn" onclick="${blockBtnAction}" title="${blockBtnLabel}">${blockBtnIcon}</button>
         </div>
       </div>
@@ -296,7 +297,10 @@ function renderChatMessages() {
       <div class="msg-bubble">
         ${!isMine && fromName ? `<div class="msg-author">${sanitize(fromName)}</div>` : ''}
         ${content}
-        <div class="msg-t">${sanitize(time)}${isMine ? ' ✓✓' : ''}</div>
+        <div class="msg-t">
+          <span>${sanitize(time)}${isMine ? ' ✓✓' : ''}</span>
+          <button class="msg-delete-btn" onclick="deleteMsg('${m.id}')" title="Apagar mensagem">🗑</button>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -383,5 +387,32 @@ function onUserOnline(data) {
     if (status && !status.textContent.includes('Bloqueado')) {
       status.innerHTML = data.online ? '<span class="online-dot"></span> Online' : 'Offline';
     }
+  }
+}
+
+async function deleteMsg(msgId) {
+  if (!confirm('Apagar esta mensagem?')) return;
+  try {
+    const res = await API.deleteMessage(msgId);
+    if (res.ok) {
+      _chatMsgs = _chatMsgs.filter(m => m.id !== msgId);
+      renderChatMessages();
+    }
+  } catch (_) {
+    toast('Erro ao apagar mensagem', 'error');
+  }
+}
+
+async function deleteConversation(uid) {
+  if (!confirm('Apagar toda a conversa?')) return;
+  try {
+    const res = await API.deleteConversation(uid);
+    if (res.ok) {
+      _chatMsgs = [];
+      renderChatMessages();
+      toast('Conversa apagada', 'info');
+    }
+  } catch (_) {
+    toast('Erro ao apagar conversa', 'error');
   }
 }

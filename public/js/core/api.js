@@ -99,6 +99,14 @@ const API = {
     return this.post('/api/messages', body);
   },
 
+  deleteMessage(msgId) {
+    return this.del('/api/messages/' + msgId);
+  },
+
+  deleteConversation(userId) {
+    return this.del('/api/messages/conversation/' + userId);
+  },
+
   getGroups() {
     return this.get('/api/groups');
   },

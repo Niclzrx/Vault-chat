@@ -63,4 +63,24 @@ router.post('/', requireAuth, msgLimiter, async (req, res) => {
   res.json({ ok: true, message: { id, from, to, encrypted, encrypted_image, msg_type: type, timestamp } });
 });
 
+router.delete('/:msgId', requireAuth, async (req, res) => {
+  lazy();
+  const myId = req.session.userId;
+  const msgId = req.params.msgId;
+  const msg = await db.prepare('SELECT * FROM messages WHERE id = ?').get(msgId);
+  if (!msg) return res.status(404).json({ error: 'Mensagem não encontrada.' });
+  if (msg.from_id !== myId && msg.to_id !== myId) return res.status(403).json({ error: 'Sem permissão.' });
+  await db.prepare('DELETE FROM messages WHERE id = ?').run(msgId);
+  res.json({ ok: true });
+});
+
+router.delete('/conversation/:userId', requireAuth, async (req, res) => {
+  lazy();
+  const myId = req.session.userId;
+  const otherId = req.params.userId;
+  await db.prepare('DELETE FROM messages WHERE (from_id = ? AND to_id = ?) OR (from_id = ? AND to_id = ?)')
+    .run(myId, otherId, otherId, myId);
+  res.json({ ok: true });
+});
+
 module.exports = router;

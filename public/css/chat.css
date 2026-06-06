@@ -150,3 +150,13 @@
 }
 .chat-blocked-notice button:hover { background: var(--ac2); }
 .chat-input-area.blocked { justify-content: center; }
+
+/* ── Delete buttons ── */
+.msg-delete-btn {
+  opacity: 0; background: none; border: none; cursor: pointer;
+  font-size: .55rem; padding: 0 .15rem; transition: opacity .15s;
+}
+.msg:hover .msg-delete-btn { opacity: .6; }
+.msg-delete-btn:hover { opacity: 1 !important; }
+.chat-delete-conv-btn { color: var(--danger) !important; }
+.chat-delete-conv-btn:hover { background: rgba(239,68,68,.12) !important; }
