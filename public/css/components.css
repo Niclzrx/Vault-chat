@@ -141,3 +141,10 @@ label { font-size: .66rem; color: var(--t2); display: block; margin-bottom: .24r
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
 .glob { border-radius: var(--radius-sm); background: var(--bg3); border: 1px solid var(--border); padding: .7rem; }
+
+/* ── Mobile: prevent iOS zoom on input focus ── */
+@media (max-width: 768px) {
+  input, textarea, select {
+    font-size: 16px;
+  }
+}

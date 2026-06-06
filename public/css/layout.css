@@ -219,7 +219,7 @@ canvas#particles { position: absolute; inset: 0; pointer-events: none; }
 
   .menu-btn { display: flex !important; }
 
-  .dash { position: relative; }
+  .dash { position: relative; height: calc(100dvh - 52px); }
   .side {
     position: fixed; left: -260px; top: 52px; bottom: 0;
     width: 250px; z-index: 100;
@@ -229,7 +229,7 @@ canvas#particles { position: absolute; inset: 0; pointer-events: none; }
   .dash.side-open .side {
     left: 0; box-shadow: 4px 0 24px rgba(0,0,0,.5);
   }
-  .mc { padding: 1rem; }
+  .mc { padding: 1rem; overflow-y: auto; }
 
   .hero-inner { flex-direction: column; gap: 1.5rem; }
   .hero-logo { width: 130px; height: 130px; max-width: 130px; max-height: 130px; }

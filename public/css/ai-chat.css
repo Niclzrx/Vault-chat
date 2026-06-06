@@ -34,26 +34,72 @@
 
 /* ── Mobile AI Chat ── */
 @media (max-width: 768px) {
+  #p-ai-chat .dash {
+    flex-direction: column;
+  }
+  #p-ai-chat .side {
+    position: fixed;
+    left: -260px;
+    top: 52px;
+    bottom: 0;
+    width: 250px;
+    z-index: 100;
+    transition: left .25s cubic-bezier(.22,1,.36,1);
+    box-shadow: none;
+  }
+  #p-ai-chat .dash.side-open .side {
+    left: 0;
+    box-shadow: 4px 0 24px rgba(0,0,0,.5);
+  }
+
+  #ai-main {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
   .ai-chat-container {
-    height: calc(100vh - 180px);
-    min-height: 300px;
+    height: auto !important;
+    min-height: 0 !important;
+    flex: 1;
+    max-height: none;
+    overflow: hidden;
+  }
+  .ai-msg-wrap {
+    max-height: calc(100dvh - 280px);
+    overflow-y: auto;
   }
   .ai-msg { max-width: 92%; }
   .ai-msg .ai-bbl { padding: .45rem .7rem; font-size: .75rem; }
-  .ai-input-row { gap: .35rem; margin-top: .5rem; }
+  .ai-input-row {
+    flex-shrink: 0;
+    background: var(--bg);
+    padding: .5rem 0 0;
+    margin-top: 0;
+    border-top: 1px solid var(--border);
+    z-index: 10;
+  }
   .ai-input-row textarea {
     min-height: 40px;
-    max-height: 100px;
+    max-height: 80px;
     padding: .5rem .7rem;
-    font-size: .85rem;
+    font-size: 16px;
   }
   .ai-input-row .btn { padding: .3rem .55rem; font-size: .7rem; }
   .ai-msg .ai-av { width: 26px; height: 26px; font-size: .6rem; }
+  .ai-token-count { font-size: .56rem; margin-top: .15rem; flex-shrink: 0; }
+  .ai-typing { padding: .3rem 0; flex-shrink: 0; }
   .ai-config-area .card { padding: .85rem; }
   .ai-config-area .field { margin-bottom: .6rem; }
-  .ai-config-area input, .ai-config-area textarea { font-size: .85rem; padding: .45rem .65rem; }
+  .ai-config-area input, .ai-config-area textarea { font-size: 16px; padding: .45rem .65rem; }
   .ai-config-area label { font-size: .62rem; }
   .ai-config-area .btn { font-size: .7rem; padding: .35rem .7rem; }
-  .ai-token-count { font-size: .56rem; margin-top: .15rem; }
-  .ai-typing { padding: .3rem 0; }
+  .pt { font-size: 1rem; }
+  .ps { font-size: .68rem; margin-bottom: .75rem; }
+}
+
+@media (max-width: 480px) {
+  .ai-chat-container { max-height: calc(100dvh - 160px); }
+  .ai-msg .ai-bbl { padding: .4rem .6rem; font-size: .72rem; }
+  .ai-input-row textarea { font-size: 16px; }
 }
