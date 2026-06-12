@@ -104,9 +104,6 @@ function initSQLite() {
       date TEXT,
       status TEXT DEFAULT 'pending'
     );
-    CREATE TABLE IF NOT EXISTS ai_blocked (
-      user_id TEXT PRIMARY KEY
-    );
     CREATE TABLE IF NOT EXISTS blocked_users (
       blocker_id TEXT NOT NULL,
       blocked_id TEXT NOT NULL,
@@ -231,9 +228,6 @@ async function initPG(url) {
         user_id TEXT,
         date TEXT,
         status TEXT DEFAULT 'pending'
-      )`,
-      `CREATE TABLE IF NOT EXISTS ai_blocked (
-        user_id TEXT PRIMARY KEY
       )`,
       `CREATE TABLE IF NOT EXISTS blocked_users (
         blocker_id TEXT NOT NULL,

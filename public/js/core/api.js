@@ -222,14 +222,6 @@ const API = {
     return this.put('/api/admin/recovery/' + id, { status, new_password });
   },
 
-  adminAIBlock(userId) {
-    return this.put('/api/admin/ai-block/' + userId);
-  },
-
-  adminAIBlocked() {
-    return this.get('/api/admin/ai-blocked');
-  },
-
   adminConfig() {
     return this.get('/api/admin/config');
   },

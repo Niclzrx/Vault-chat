@@ -136,34 +136,6 @@ router.put('/recovery/:id', requireAdmin, async (req, res) => {
   res.json({ ok: true });
 });
 
-router.put('/ai-block/:id', requireAdmin, async (req, res) => {
-  lazy();
-  const userId = req.params.id;
-  const existing = await db.prepare('SELECT 1 FROM ai_blocked WHERE user_id = ?').get(userId);
-
-  if (existing) {
-    await db.prepare('DELETE FROM ai_blocked WHERE user_id = ?').run(userId);
-    await db.prepare('INSERT INTO notifications (id, user_id, icon, message, timestamp, read) VALUES (?, ?, ?, ?, ?, 0)')
-      .run(genId('n'), userId, '✓', 'Seu acesso ao assistente IA foi liberado.', now());
-    await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('AI_UNBLOCK', ?, '', ?)`)
-      .run((await db.prepare('SELECT name FROM users WHERE id = ?').get(userId))?.name || '?', now());
-  } else {
-    await db.prepare('INSERT INTO ai_blocked (user_id) VALUES (?)').run(userId);
-    await db.prepare('INSERT INTO notifications (id, user_id, icon, message, timestamp, read) VALUES (?, ?, ?, ?, ?, 0)')
-      .run(genId('n'), userId, '⊘', 'Seu acesso ao assistente IA foi bloqueado.', now());
-    await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('AI_BLOCK', ?, 'bloqueado da IA', ?)`)
-      .run((await db.prepare('SELECT name FROM users WHERE id = ?').get(userId))?.name || '?', now());
-  }
-
-  res.json({ ok: true, blocked: !existing });
-});
-
-router.get('/ai-blocked', requireAdmin, async (req, res) => {
-  lazy();
-  const blocked = (await db.prepare('SELECT user_id FROM ai_blocked').all()).map(r => r.user_id);
-  res.json({ ok: true, blocked });
-});
-
 router.get('/config', requireAdmin, async (req, res) => {
   lazy();
   const users = (await db.prepare('SELECT COUNT(*) as c FROM users').get()).c;
@@ -206,8 +178,7 @@ router.post('/reset', requireAdmin, async (req, res) => {
     'DELETE FROM groups_t',
     'DELETE FROM notifications',
     'DELETE FROM sys_logs',
-    'DELETE FROM recovery_requests',
-    'DELETE FROM ai_blocked'
+    'DELETE FROM recovery_requests'
   ];
   for (const sql of stmts) {
     await db.prepare(sql).run();

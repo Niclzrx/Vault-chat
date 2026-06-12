@@ -107,7 +107,6 @@
 <link rel="stylesheet" href="css/admin.css"/>
 <link rel="stylesheet" href="css/modals.css"/>
 <link rel="stylesheet" href="css/utilities.css"/>
-<link rel="stylesheet" href="css/ai-chat.css"/>
 </head>
 <body>
 
@@ -266,7 +265,6 @@
     <div class="si" id="si-crypto" onclick="uSec('crypto')"><span class="si-ico">🔐</span> Cripto</div>
     <div class="si" id="si-groups" onclick="uSec('groups')"><span class="si-ico">👥</span> Grupos</div>
     <div class="side-sep"></div>
-    <div class="si" onclick="openAIChat()"><span class="si-ico">✨</span> IA</div>
     <div class="side-bottom">
       <div class="side-user" id="side-user-info"></div>
       <div class="si" onclick="doLogout()" style="color:var(--danger)"><span class="si-ico">🚪</span> Sair</div>
@@ -332,7 +330,6 @@
     <div class="side-sep"></div>
     <div class="side-label">Sistema</div>
     <div class="si" id="si-adm-config" onclick="renderAdminConfig()"><span class="si-ico">⚙️</span> Config</div>
-    <div class="si" id="si-adm-ai" onclick="renderAdminAIBlock()"><span class="si-ico">🤖</span> Controle IA</div>
     <div class="side-sep"></div>
     <div class="si" onclick="go('p-land')"><span class="si-ico">←</span> Início</div>
     <div class="side-bottom">
@@ -340,46 +337,6 @@
     </div>
   </div>
   <div class="mc" id="adm-content"></div>
-</div>
-</div>
-
-<!-- ================================================
-     AI CHAT
-================================================= -->
-<div class="page" id="p-ai-chat">
-<nav>
-  <div class="brand" onclick="go('p-land')">
-    <img src="img/icon.png" alt="ChatVault" class="brand-icon-img"/>
-    <span class="brand-text">Chat<span class="brand-vault">Vault</span></span>
-  </div>
-  <div class="nav-r">
-    <button class="btn sm menu-btn" onclick="toggleSide()">≡</button>
-    <span class="badge b-blue pulse">● IA Ativo</span>
-    <button class="btn sm" onclick="showAIConfig()">⚙️ Config</button>
-    <button class="btn sm red" onclick="doLogout()">Sair</button>
-  </div>
-</nav>
-<div class="dash">
-  <div class="side">
-    <div class="side-label">Inteligência</div>
-    <div class="si on" id="si-ai-chat" onclick="renderAIChat()"><span class="si-ico">✨</span> Chat IA</div>
-    <div class="si" id="si-ai-history" onclick="renderAIHistory()"><span class="si-ico">📋</span> Histórico</div>
-    <div class="side-sep"></div>
-    <div class="side-label">Navegação</div>
-    <div class="si" onclick="backToUserDash()"><span class="si-ico">←</span> Dashboard</div>
-  </div>
-  <div class="mc" id="ai-main">
-    <div class="pt">Assistente IA</div>
-    <div class="ps">Inteligência artificial integrada · suas conversas são privadas</div>
-    <div class="card" id="ai-block-notice" style="display:none;border-color:rgba(239,68,68,.2)">
-      <div style="display:flex;align-items:center;gap:.6rem">
-        <span style="font-size:1.2rem">🚫</span>
-        <div><div style="font-weight:700;color:var(--danger)">Acesso bloqueado</div><div style="font-size:.74rem;color:var(--t2)">O administrador bloqueou seu acesso ao assistente IA.</div></div>
-      </div>
-    </div>
-    <div id="ai-chat-area"></div>
-    <div id="ai-config-area" style="display:none"></div>
-  </div>
 </div>
 </div>
 
@@ -413,9 +370,6 @@
 <script src="js/admin/logs.js"></script>
 <script src="js/admin/recovery.js"></script>
 <script src="js/admin/config.js"></script>
-
-<script src="js/features/ai-block.js"></script>
-<script src="js/features/ai-chat.js"></script>
 
 <script>
 /* -- Particles -- */
@@ -489,17 +443,6 @@ function toggleSide() {
       delete dash._sideCloser;
     }
   }
-}
-
-/* -- AI Chat helper -- */
-function openAIChat() {
-  go('p-ai-chat');
-  setTimeout(() => renderAIChat(), 50);
-}
-
-function backToUserDash() {
-  if (AppUser) { go('p-user'); uSec('home'); }
-  else { go('p-land'); }
 }
 
 let AppUser = null;

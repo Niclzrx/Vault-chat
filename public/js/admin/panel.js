@@ -22,7 +22,6 @@ function aSec(s) {
   else if (s === 'logs')     renderAdmLogs(el);
   else if (s === 'recovery') renderAdmRecovery(el);
   else if (s === 'config')   renderAdmConfig(el);
-  else if (s === 'ai')       renderAdminAIBlock(el);
 }
 
 async function renderAdmPanel(el) {
@@ -69,4 +68,3 @@ function renderAdminGroups() { aSec('groups'); }
 function renderAdminLogs() { aSec('logs'); }
 function renderAdminRecovery() { aSec('recovery'); }
 function renderAdminConfig() { aSec('config'); }
-function renderAdminAIBlock() { aSec('ai'); }
