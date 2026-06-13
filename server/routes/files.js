@@ -23,11 +23,35 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 50 * 1024 * 1024 },
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: (req, file, cb) => {
-    const blocked = ['.exe', '.bat', '.cmd', '.sh', '.ps1', '.msi'];
+    // Block dangerous file types
+    const blocked = [
+      '.exe', '.bat', '.cmd', '.sh', '.ps1', '.msi', '.com', '.pif',
+      '.html', '.htm', '.php', '.phtml', '.php3', '.php4', '.php5',
+      '.js', '.vbs', '.vbe', '.wsf', '.wsh', '.scr', '.hta',
+      '.cpl', '.inf', '.reg', '.rgs', '.sct', '.shb', '.shs'
+    ];
     const ext = path.extname(file.originalname).toLowerCase();
-    if (blocked.includes(ext)) return cb(new Error('Tipo de arquivo não permitido.'));
+    if (blocked.includes(ext)) {
+      return cb(new Error('Tipo de arquivo não permitido.'));
+    }
+    
+    // Also check MIME type
+    const allowedMimes = [
+      'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+      'video/mp4', 'video/webm',
+      'audio/mpeg', 'audio/wav',
+      'application/pdf',
+      'application/zip', 'application/x-rar-compressed',
+      'text/plain', 'text/csv',
+      'application/json'
+    ];
+    
+    if (!allowedMimes.includes(file.mimetype)) {
+      return cb(new Error('Tipo de arquivo não permitido.'));
+    }
+    
     cb(null, true);
   }
 });

@@ -7,6 +7,10 @@ function lazy() { if (!db) { const d = require('../db'); db = d.db(); genId = d.
 
 const { requireAuth } = require('../middleware/auth');
 const { sanitize } = require('../middleware/validate');
+const { apiLimiter } = require('../middleware/rateLimit');
+
+// Apply rate limiter to all user routes
+router.use(apiLimiter);
 
 router.get('/', requireAuth, async (req, res) => {
   lazy();

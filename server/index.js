@@ -14,7 +14,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 const { init: initDB, db: getDb } = require('./db');
-const { csrfToken } = require('./middleware/auth');
+const { csrfToken, csrfCheck } = require('./middleware/auth');
 const { requestLogger, authLogger } = require('./middleware/audit');
 
 const app = express();
@@ -66,10 +66,20 @@ app.use(helmet({
   noSniff: true,
   referrerPolicy: { policy: "no-referrer" },
   xssFilter: true,
-  frameguard: false,
+  frameguard: { action: 'deny' },
   hidePoweredBy: true,
   permittedCrossDomainPolicies: { permittedPolicies: "none" }
 }));
+
+// Additional security headers
+app.use((req, res, next) => {
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -111,6 +121,9 @@ app.use((req, res, next) => {
 });
 
 app.use(csrfToken);
+
+// CSRF check for state-changing operations
+app.use(csrfCheck);
 
 // Audit logging
 app.use(requestLogger);
