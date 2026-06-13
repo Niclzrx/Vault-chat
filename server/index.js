@@ -15,6 +15,7 @@ const crypto = require('crypto');
 
 const { init: initDB, db: getDb } = require('./db');
 const { csrfToken } = require('./middleware/auth');
+const { requestLogger, authLogger } = require('./middleware/audit');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -58,8 +59,28 @@ const io = new Server(server, {
 function startServer() {
 
 app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "blob:"],
+      connectSrc: ["'self'", "wss:", "ws:"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    }
+  },
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "same-site" },
+  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  noSniff: true,
+  referrerPolicy: { policy: "no-referrer" },
+  xssFilter: true,
+  frameguard: { action: "deny" },
+  hidePoweredBy: true,
+  permittedCrossDomainPolicies: { permittedPolicies: "none" }
 }));
 app.use(cors({
   origin: function (origin, callback) {
@@ -83,12 +104,30 @@ const sessionMiddleware = session({
     httpOnly: true,
     secure: false,
     sameSite: 'lax',
-    maxAge: 24 * 60 * 60 * 1000
+    maxAge: 30 * 60 * 1000 // 30 minutes session timeout
   }
 });
+
+// Session timeout middleware - reset on activity
+app.use((req, res, next) => {
+  if (req.session && req.session.userId) {
+    const now = Date.now();
+    if (req.session.lastActivity && (now - req.session.lastActivity) > 30 * 60 * 1000) {
+      req.session.destroy();
+      return res.status(401).json({ error: 'Sessão expirada. Faça login novamente.' });
+    }
+    req.session.lastActivity = now;
+  }
+  next();
+});
+
 app.use(sessionMiddleware);
 
 app.use(csrfToken);
+
+// Audit logging
+app.use(requestLogger);
+app.use('/api/auth', authLogger);
 
 app.use(express.static(path.join(__dirname, '..', 'public')));
 

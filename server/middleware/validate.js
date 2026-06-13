@@ -11,7 +11,9 @@ function validateEmail(email) {
 
 function validatePassword(pass) {
   if (!pass || pass.length < 8) return 'Mínimo 8 caracteres.';
-  if (!/[A-Z]/.test(pass) && !/[0-9]/.test(pass)) return 'Use letras maiúsculas ou números.';
+  if (!/[A-Z]/.test(pass)) return 'Precisa de pelo menos 1 letra maiúscula.';
+  if (!/[0-9]/.test(pass)) return 'Precisa de pelo menos 1 número.';
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(pass)) return 'Precisa de pelo menos 1 símbolo (!@#$%^&*).';
   return null;
 }
 

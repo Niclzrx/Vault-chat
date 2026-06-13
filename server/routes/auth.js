@@ -9,6 +9,35 @@ function lazy() { if (!db) { const d = require('../db'); db = d.db(); genId = d.
 const { validateRegister, validateLogin } = require('../middleware/validate');
 const { loginLimiter, registerLimiter } = require('../middleware/rateLimit');
 
+// Account lockout tracking
+const loginAttempts = new Map();
+const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
+const MAX_ATTEMPTS = 5;
+
+function isLockedOut(email) {
+  const attempts = loginAttempts.get(email);
+  if (!attempts) return false;
+  if (attempts.lockedUntil && Date.now() < attempts.lockedUntil) return true;
+  if (attempts.lockedUntil && Date.now() >= attempts.lockedUntil) {
+    loginAttempts.delete(email);
+    return false;
+  }
+  return false;
+}
+
+function recordFailedAttempt(email) {
+  const attempts = loginAttempts.get(email) || { count: 0 };
+  attempts.count++;
+  if (attempts.count >= MAX_ATTEMPTS) {
+    attempts.lockedUntil = Date.now() + LOCKOUT_DURATION;
+  }
+  loginAttempts.set(email, attempts);
+}
+
+function clearAttempts(email) {
+  loginAttempts.delete(email);
+}
+
 router.post('/register', registerLimiter, validateRegister, async (req, res) => {
   lazy();
   const { name, email, password } = req.body;
@@ -41,8 +70,17 @@ router.post('/register', registerLimiter, validateRegister, async (req, res) => 
 router.post('/login', loginLimiter, validateLogin, async (req, res) => {
   lazy();
   const { email, password } = req.body;
+  
+  // Check for account lockout
+  if (isLockedOut(email)) {
+    const attempts = loginAttempts.get(email);
+    const remainingTime = Math.ceil((attempts.lockedUntil - Date.now()) / 60000);
+    return res.status(429).json({ error: `Conta bloqueada. Tente novamente em ${remainingTime} minutos.` });
+  }
+  
   const user = await db.prepare('SELECT * FROM users WHERE email = ?').get(email);
   if (!user) {
+    recordFailedAttempt(email);
     await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('LOGIN_FAIL', ?, ?, ?)`)
       .run(email, 'usuário não encontrado', now());
     return res.status(401).json({ error: 'Usuário não encontrado.' });
@@ -57,10 +95,14 @@ router.post('/login', loginLimiter, validateLogin, async (req, res) => {
   }
 
   if (!bcrypt.compareSync(password, user.password_hash)) {
+    recordFailedAttempt(email);
     await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('LOGIN_FAIL', ?, ?, ?)`)
       .run(user.name, 'senha incorreta', now());
     return res.status(401).json({ error: 'Senha incorreta.' });
   }
+
+  // Clear failed attempts on successful login
+  clearAttempts(email);
 
   await db.prepare('UPDATE users SET online = 1, last_login = ? WHERE id = ?').run(now(), user.id);
   await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('LOGIN', ?, ?, ?)`)
