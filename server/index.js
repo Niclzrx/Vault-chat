@@ -59,26 +59,14 @@ const io = new Server(server, {
 function startServer() {
 
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "blob:"],
-      connectSrc: ["'self'", "wss:", "ws:"],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
-    }
-  },
+  contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
-  crossOriginResourcePolicy: { policy: "same-site" },
+  crossOriginResourcePolicy: false,
   hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
   noSniff: true,
   referrerPolicy: { policy: "no-referrer" },
   xssFilter: true,
-  frameguard: { action: "deny" },
+  frameguard: false,
   hidePoweredBy: true,
   permittedCrossDomainPolicies: { permittedPolicies: "none" }
 }));
@@ -107,6 +95,7 @@ const sessionMiddleware = session({
     maxAge: 30 * 60 * 1000 // 30 minutes session timeout
   }
 });
+app.use(sessionMiddleware);
 
 // Session timeout middleware - reset on activity
 app.use((req, res, next) => {
@@ -120,8 +109,6 @@ app.use((req, res, next) => {
   }
   next();
 });
-
-app.use(sessionMiddleware);
 
 app.use(csrfToken);
 
