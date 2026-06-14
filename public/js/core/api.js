@@ -11,13 +11,27 @@ const API = {
     } catch (_) {}
   },
 
+  getCsrfCookie() {
+    const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]*)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  },
+
   async request(method, url, body = null) {
     const opts = {
       method,
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' }
     };
-    if (this.csrfToken) opts.headers['X-CSRF-Token'] = this.csrfToken;
+
+    // For auth routes, use cookie-based CSRF token
+    const isAuthRoute = ['/api/auth/login', '/api/auth/register', '/api/auth/admin-login', '/api/auth/recovery'].some(r => url.includes(r));
+    if (isAuthRoute) {
+      const cookieToken = this.getCsrfCookie();
+      if (cookieToken) opts.headers['X-CSRF-Token'] = cookieToken;
+    } else if (this.csrfToken) {
+      opts.headers['X-CSRF-Token'] = this.csrfToken;
+    }
+
     if (body) opts.body = JSON.stringify(body);
 
     const res = await fetch(url, opts);
