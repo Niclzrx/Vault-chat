@@ -64,7 +64,7 @@ router.post('/register', registerLimiter, validateRegister, async (req, res) => 
   req.session.userId = id;
   req.session.role = 'user';
 
-  res.json({ ok: true, user: { id, name, email, avatar: initials, color: colors[Math.floor(Math.random() * colors.length)] } });
+  res.json({ ok: true, user: { id, name, email, avatar: initials, color: colors[Math.floor(Math.random() * colors.length)], created } });
 });
 
 router.post('/login', loginLimiter, validateLogin, async (req, res) => {
@@ -113,7 +113,7 @@ router.post('/login', loginLimiter, validateLogin, async (req, res) => {
 
   res.json({
     ok: true,
-    user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar, color: user.color, role: user.role, admin_granted: !!user.admin_granted }
+    user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar, color: user.color, role: user.role, admin_granted: !!user.admin_granted, created: user.created }
   });
 });
 
