@@ -28,7 +28,11 @@ function csrfToken(req, res, next) {
 
 function csrfCheck(req, res, next) {
   // Skip CSRF for login and register (they don't have session yet)
-  if (req.path === '/login' || req.path === '/register' || req.path === '/admin-login') {
+  // Check both full path and relative path
+  const path = req.path || '';
+  const isAuthRoute = path.includes('/login') || path.includes('/register') || path.includes('/admin-login') || path.includes('/recovery');
+  
+  if (isAuthRoute) {
     return next();
   }
   
