@@ -12,12 +12,25 @@ const { sanitize } = require('../middleware/validate');
 router.get('/', requireAuth, async (req, res) => {
   lazy();
   const userId = req.session.userId;
-  const groups = await db.prepare(`
-    SELECT g.*, gm.is_admin
-    FROM groups_t g
-    JOIN group_members gm ON gm.group_id = g.id AND gm.user_id = ?
-    ORDER BY g.created DESC
-  `).all(userId);
+  const isAdmin = !!req.session.adminId;
+  
+  let groups;
+  if (isAdmin) {
+    // Admin can see all groups
+    groups = await db.prepare(`
+      SELECT g.*
+      FROM groups_t g
+      ORDER BY g.created DESC
+    `).all();
+  } else {
+    // Regular user can only see groups they're a member of
+    groups = await db.prepare(`
+      SELECT g.*, gm.is_admin
+      FROM groups_t g
+      JOIN group_members gm ON gm.group_id = g.id AND gm.user_id = ?
+      ORDER BY g.created DESC
+    `).all(userId);
+  }
 
   for (const g of groups) {
     g.memberCount = (await db.prepare('SELECT COUNT(*) as c FROM group_members WHERE group_id = ?').get(g.id)).c;
@@ -188,8 +201,9 @@ router.delete('/:id', requireAuth, async (req, res) => {
   const group = await db.prepare('SELECT * FROM groups_t WHERE id = ?').get(req.params.id);
   if (!group) return res.status(404).json({ error: 'Grupo não encontrado.' });
 
-  if (group.creator_id !== req.session.userId) {
-    return res.status(403).json({ error: 'Apenas o criador pode excluir o grupo.' });
+  const isAdmin = !!req.session.adminId;
+  if (!isAdmin && group.creator_id !== req.session.userId) {
+    return res.status(403).json({ error: 'Apenas o criador ou administrador pode excluir o grupo.' });
   }
 
   await db.prepare('DELETE FROM group_messages WHERE group_id = ?').run(group.id);

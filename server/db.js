@@ -129,18 +129,20 @@ function seedSQLite() {
   const userCount = db.prepare('SELECT COUNT(*) as c FROM users').get().c;
   if (userCount > 0) return;
   const demoUsers = [
-    { id: 'u2', name: 'Bruno Costa', email: 'bruno@vault.app', pass: 'Bruno@123456', color: '#1de9b6', avatar: 'BC' },
-    { id: 'u3', name: 'Carla Dias', email: 'carla@vault.app', pass: 'Carla@123456', color: '#69f0ae', avatar: 'CD' }
+    { id: 'u2', name: 'Bruno Costa', email: 'bruno@vault.app', pass: crypto.randomBytes(12).toString('base64'), color: '#1de9b6', avatar: 'BC' },
+    { id: 'u3', name: 'Carla Dias', email: 'carla@vault.app', pass: crypto.randomBytes(12).toString('base64'), color: '#69f0ae', avatar: 'CD' }
   ];
   const insertUser = db.prepare(`INSERT INTO users (id, name, email, password_hash, role, avatar, color, online, created, last_login, settings) VALUES (?, ?, ?, ?, 'user', ?, ?, 0, ?, 'nunca', '{}')`);
   const nowDate = new Date().toLocaleDateString('pt-BR');
   for (const u of demoUsers) {
     const hash = bcrypt.hashSync(u.pass, SALT_ROUNDS);
     insertUser.run(u.id, u.name, u.email, hash, u.avatar, u.color, nowDate);
+    console.log(`[DB] Demo user: ${u.email} / ${u.pass}`);
   }
-  const adminHash = bcrypt.hashSync(process.env.ADMIN_PASS || 'Adm!n@V4ult_2026!', SALT_ROUNDS);
+  const adminPass = process.env.ADMIN_PASS || crypto.randomBytes(16).toString('base64');
+  const adminHash = bcrypt.hashSync(adminPass, SALT_ROUNDS);
   db.prepare('INSERT INTO admins (id, name, password_hash) VALUES (?, ?, ?)').run(process.env.ADMIN_ID || 'root', process.env.ADMIN_NAME || 'Vault Admin', adminHash);
-  console.log('[DB] Seed SQLite: 2 users + admin');
+  console.log(`[DB] Admin: ${process.env.ADMIN_ID || 'root'} / ${adminPass}`);
 }
 
 async function initPG(url) {
@@ -248,8 +250,8 @@ async function initPG(url) {
     const userCount = (await client.query('SELECT COUNT(*) as c FROM users')).rows[0].c;
     if (parseInt(userCount) === 0) {
       const demoUsers = [
-        { id: 'u2', name: 'Bruno Costa', email: 'bruno@vault.app', pass: 'Bruno@123456', color: '#1de9b6', avatar: 'BC' },
-        { id: 'u3', name: 'Carla Dias', email: 'carla@vault.app', pass: 'Carla@123456', color: '#69f0ae', avatar: 'CD' }
+        { id: 'u2', name: 'Bruno Costa', email: 'bruno@vault.app', pass: crypto.randomBytes(12).toString('base64'), color: '#1de9b6', avatar: 'BC' },
+        { id: 'u3', name: 'Carla Dias', email: 'carla@vault.app', pass: crypto.randomBytes(12).toString('base64'), color: '#69f0ae', avatar: 'CD' }
       ];
       const nowDate = new Date().toLocaleDateString('pt-BR');
       for (const u of demoUsers) {
@@ -258,13 +260,15 @@ async function initPG(url) {
           'INSERT INTO users (id, name, email, password_hash, role, avatar, color, online, created, last_login, settings) VALUES ($1,$2,$3,$4,$5,$6,$7,0,$8,\'nunca\',\'{}\')',
           [u.id, u.name, u.email, hash, 'user', u.avatar, u.color, nowDate]
         );
+        console.log(`[DB] Demo user: ${u.email} / ${u.pass}`);
       }
-      const adminHash = bcrypt.hashSync(process.env.ADMIN_PASS || 'Adm!n@V4ult_2026!', SALT_ROUNDS);
+      const adminPass = process.env.ADMIN_PASS || crypto.randomBytes(16).toString('base64');
+      const adminHash = bcrypt.hashSync(adminPass, SALT_ROUNDS);
       await client.query(
         'INSERT INTO admins (id, name, password_hash) VALUES ($1,$2,$3)',
         [process.env.ADMIN_ID || 'root', process.env.ADMIN_NAME || 'Vault Admin', adminHash]
       );
-      console.log('[DB] Seed PostgreSQL: 2 users + admin');
+      console.log(`[DB] Admin: ${process.env.ADMIN_ID || 'root'} / ${adminPass}`);
     }
   } finally {
     client.release();

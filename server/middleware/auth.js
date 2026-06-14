@@ -27,7 +27,12 @@ function csrfToken(req, res, next) {
     // Generate CSRF token for cookie-based requests (login/register)
     if (!req.cookies.csrf_token) {
       const cookieToken = crypto.randomBytes(32).toString('hex');
-      res.cookie('csrf_token', cookieToken, { httpOnly: false, sameSite: 'lax' });
+      res.cookie('csrf_token', cookieToken, {
+        httpOnly: false,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 30 * 60 * 1000 // 30 minutes
+      });
     }
   }
   next();

@@ -82,7 +82,11 @@ app.use((req, res, next) => {
 });
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    // But block null origin from sandboxed iframes
+    if (origin === null || origin === undefined) {
+      callback(null, false);
+    } else if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(null, false);
@@ -100,7 +104,7 @@ const sessionMiddleware = session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: 30 * 60 * 1000 // 30 minutes session timeout
   }
@@ -109,7 +113,7 @@ app.use(sessionMiddleware);
 
 // Session timeout middleware - reset on activity
 app.use((req, res, next) => {
-  if (req.session && req.session.userId) {
+  if (req.session && (req.session.userId || req.session.adminId)) {
     const now = Date.now();
     if (req.session.lastActivity && (now - req.session.lastActivity) > 30 * 60 * 1000) {
       req.session.destroy();
@@ -193,6 +197,13 @@ io.on('connection', (socket) => {
       if (!from || !to) return;
       if (!encrypted && !encrypted_image) return;
 
+      // Rate limit: 10 messages per 10 seconds per user
+      const now = Date.now();
+      if (!socket._msgTimestamps) socket._msgTimestamps = [];
+      socket._msgTimestamps = socket._msgTimestamps.filter(t => now - t < 10000);
+      if (socket._msgTimestamps.length >= 10) return;
+      socket._msgTimestamps.push(now);
+
       const blockedByTarget = await db.prepare('SELECT 1 FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?').get(to, from);
       if (blockedByTarget) return;
 
@@ -208,7 +219,7 @@ io.on('connection', (socket) => {
 
       const fromUser = await db.prepare('SELECT name FROM users WHERE id = ?').get(from);
       await db.prepare('INSERT INTO notifications (id, user_id, icon, message, timestamp, read) VALUES (?, ?, ?, ?, ?, 0)')
-        .run('n' + Date.now(), to, '▸', `Nova mensagem de ${fromUser?.name || '?'}`, timestamp);
+        .run('n' + Date.now() + crypto.randomBytes(2).toString('hex'), to, '▸', `Nova mensagem de ${fromUser?.name || '?'}`, timestamp);
 
       const room = `chat:${[from, to].sort().join('_')}`;
       io.to(room).emit('chat:message', { id, from, to, encrypted, encrypted_image, msg_type: type, timestamp });
@@ -232,6 +243,13 @@ io.on('connection', (socket) => {
       const db = getDb();
       const { groupId, encrypted } = data;
       if (!userId || !groupId || !encrypted) return;
+
+      // Rate limit: 10 messages per 10 seconds per user
+      const now = Date.now();
+      if (!socket._groupMsgTimestamps) socket._groupMsgTimestamps = [];
+      socket._groupMsgTimestamps = socket._groupMsgTimestamps.filter(t => now - t < 10000);
+      if (socket._groupMsgTimestamps.length >= 10) return;
+      socket._groupMsgTimestamps.push(now);
 
       const group = await db.prepare('SELECT * FROM groups_t WHERE id = ?').get(groupId);
       if (!group) return;

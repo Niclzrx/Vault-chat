@@ -45,6 +45,9 @@ router.post('/', requireAuth, msgLimiter, async (req, res) => {
   const blockedByTarget = await db.prepare('SELECT 1 FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?').get(to, from);
   if (blockedByTarget) return res.status(403).json({ error: 'Você foi bloqueado por este usuário.' });
 
+  const blockedBySender = await db.prepare('SELECT 1 FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?').get(from, to);
+  if (blockedBySender) return res.status(403).json({ error: 'Você bloqueou este usuário.' });
+
   const toUser = await db.prepare('SELECT id, name FROM users WHERE id = ?').get(to);
   if (!toUser) return res.status(404).json({ error: 'Destinatário não encontrado.' });
 
@@ -78,7 +81,7 @@ router.delete('/:msgId', requireAuth, async (req, res) => {
   const msgId = req.params.msgId;
   const msg = await db.prepare('SELECT * FROM messages WHERE id = ?').get(msgId);
   if (!msg) return res.status(404).json({ error: 'Mensagem não encontrada.' });
-  if (msg.from_id !== myId && msg.to_id !== myId) return res.status(403).json({ error: 'Sem permissão.' });
+  if (msg.from_id !== myId) return res.status(403).json({ error: 'Sem permissão.' });
   await db.prepare('DELETE FROM messages WHERE id = ?').run(msgId);
   res.json({ ok: true });
 });

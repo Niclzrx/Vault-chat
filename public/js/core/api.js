@@ -180,6 +180,7 @@ const API = {
       fetch('/api/files/upload', {
         method: 'POST',
         credentials: 'same-origin',
+        headers: { 'X-CSRF-Token': this.csrfToken },
         body: formData
       }).then(r => r.json()).then(d => {
         if (d.ok) resolve(d);

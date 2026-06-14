@@ -142,7 +142,7 @@ router.get('/config', requireAdmin, async (req, res) => {
   const groups = (await db.prepare('SELECT COUNT(*) as c FROM groups_t').get()).c;
   const logs = (await db.prepare('SELECT COUNT(*) as c FROM sys_logs').get()).c;
   const recovery = (await db.prepare('SELECT COUNT(*) as c FROM recovery_requests').get()).c;
-  res.json({ ok: true, config: { users, groups, logs, recovery, adminId: process.env.ADMIN_ID || 'root' } });
+  res.json({ ok: true, config: { users, groups, logs, recovery } });
 });
 
 router.put('/config/admin-pass', requireAdmin, async (req, res) => {

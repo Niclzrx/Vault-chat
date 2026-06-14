@@ -30,7 +30,8 @@ const upload = multer({
       '.exe', '.bat', '.cmd', '.sh', '.ps1', '.msi', '.com', '.pif',
       '.html', '.htm', '.php', '.phtml', '.php3', '.php4', '.php5',
       '.js', '.vbs', '.vbe', '.wsf', '.wsh', '.scr', '.hta',
-      '.cpl', '.inf', '.reg', '.rgs', '.sct', '.shb', '.shs'
+      '.cpl', '.inf', '.reg', '.rgs', '.sct', '.shb', '.shs',
+      '.svg'
     ];
     const ext = path.extname(file.originalname).toLowerCase();
     if (blocked.includes(ext)) {
@@ -47,6 +48,11 @@ const upload = multer({
       'text/plain', 'text/csv',
       'application/json'
     ];
+    
+    // Block SVG MIME type explicitly
+    if (file.mimetype === 'image/svg+xml') {
+      return cb(new Error('Tipo de arquivo não permitido.'));
+    }
     
     if (!allowedMimes.includes(file.mimetype)) {
       return cb(new Error('Tipo de arquivo não permitido.'));

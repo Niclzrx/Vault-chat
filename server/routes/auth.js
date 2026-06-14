@@ -83,7 +83,7 @@ router.post('/login', loginLimiter, validateLogin, async (req, res) => {
     recordFailedAttempt(email);
     await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('LOGIN_FAIL', ?, ?, ?)`)
       .run(email, 'usuário não encontrado', now());
-    return res.status(401).json({ error: 'Usuário não encontrado.' });
+    return res.status(401).json({ error: 'Credenciais inválidas.' });
   }
 
   if (user.banned) {
@@ -98,7 +98,7 @@ router.post('/login', loginLimiter, validateLogin, async (req, res) => {
     recordFailedAttempt(email);
     await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('LOGIN_FAIL', ?, ?, ?)`)
       .run(user.name, 'senha incorreta', now());
-    return res.status(401).json({ error: 'Senha incorreta.' });
+    return res.status(401).json({ error: 'Credenciais inválidas.' });
   }
 
   // Clear failed attempts on successful login
@@ -122,14 +122,30 @@ router.post('/admin-login', loginLimiter, async (req, res) => {
   const { id, password } = req.body || {};
   if (!id || !password) return res.status(400).json({ error: 'Preencha ID e senha.' });
 
+  // Check for admin account lockout
+  if (isLockedOut(id)) {
+    const attempts = loginAttempts.get(id);
+    const remainingTime = Math.ceil((attempts.lockedUntil - Date.now()) / 60000);
+    return res.status(429).json({ error: `Conta bloqueada. Tente novamente em ${remainingTime} minutos.` });
+  }
+
   const admin = await db.prepare('SELECT * FROM admins WHERE id = ?').get(id);
-  if (!admin) return res.status(401).json({ error: 'Admin não encontrado.' });
+  if (!admin) {
+    recordFailedAttempt(id);
+    await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('ADMIN_FAIL', ?, ?, ?)`)
+      .run(id, 'admin não encontrado', now());
+    return res.status(401).json({ error: 'Credenciais inválidas.' });
+  }
 
   if (!bcrypt.compareSync(password, admin.password_hash)) {
+    recordFailedAttempt(id);
     await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('ADMIN_FAIL', ?, ?, ?)`)
       .run(id, 'senha incorreta', now());
-    return res.status(401).json({ error: 'Senha incorreta.' });
+    return res.status(401).json({ error: 'Credenciais inválidas.' });
   }
+
+  // Clear failed attempts on successful login
+  clearAttempts(id);
 
   await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('ADMIN_LOGIN', ?, ?, ?)`)
     .run('root', 'acesso administrativo', now());
