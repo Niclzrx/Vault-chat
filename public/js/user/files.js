@@ -37,7 +37,7 @@ async function refreshFileList() {
           <span class="file-icon">${icon}</span>
           <div class="file-info">
             <span class="file-name">${sanitize(f.original_name)}</span>
-            <span class="file-meta">${fmtSize(f.size || 0)} • ${f.uploaded ? new Date(f.uploaded).toLocaleDateString('pt-BR') : ''}</span>
+            <span class="file-meta">${fmtSize(f.size || 0)} • ${f.uploaded || ''}</span>
           </div>
           <div class="file-actions">
             <button onclick="API.downloadFile('${f.id}')">⬇</button>

@@ -110,6 +110,15 @@ function initSQLite() {
       created TEXT,
       PRIMARY KEY (blocker_id, blocked_id)
     );
+    CREATE TABLE IF NOT EXISTS vault_files (
+      id TEXT PRIMARY KEY,
+      user_id TEXT,
+      original_name TEXT,
+      stored_name TEXT,
+      type TEXT,
+      size INTEGER,
+      uploaded TEXT
+    );
     CREATE INDEX IF NOT EXISTS idx_messages_from ON messages(from_id);
     CREATE INDEX IF NOT EXISTS idx_messages_to ON messages(to_id);
     CREATE INDEX IF NOT EXISTS idx_group_messages_group ON group_messages(group_id);
@@ -236,6 +245,15 @@ async function initPG(url) {
         blocked_id TEXT NOT NULL,
         created TEXT,
         PRIMARY KEY (blocker_id, blocked_id)
+      )`,
+      `CREATE TABLE IF NOT EXISTS vault_files (
+        id TEXT PRIMARY KEY,
+        user_id TEXT,
+        original_name TEXT,
+        stored_name TEXT,
+        type TEXT,
+        size INTEGER,
+        uploaded TEXT
       )`,
       `CREATE INDEX IF NOT EXISTS idx_messages_from ON messages(from_id)`,
       `CREATE INDEX IF NOT EXISTS idx_messages_to ON messages(to_id)`,

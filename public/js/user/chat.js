@@ -161,8 +161,14 @@ function contactItem(c) {
   if (c.lastMsg) {
     if (c.lastMsg.msg_type === 'image') {
       lastMsgPreview = 'Imagem';
-    } else {
-      lastMsgPreview = c.lastMsg.timestamp || '';
+    } else if (c.lastMsg.encrypted) {
+      // Try to decrypt for preview - use contact-specific key
+      const key = [AppUser.id, c.id].sort().join('_');
+      Crypto.decrypt(c.lastMsg.encrypted, key).then(text => {
+        const el = document.querySelector(`.contact-item[data-uid="${c.id}"] .contact-status`);
+        if (el && text) el.textContent = text.substring(0, 30) + (text.length > 30 ? '...' : '');
+      }).catch(() => {});
+      lastMsgPreview = '...';
     }
   }
 
@@ -171,7 +177,7 @@ function contactItem(c) {
       <div class="contact-avatar" style="background:${c.color}">${sanitize(c.avatar || c.name?.[0] || '?')}</div>
       <div class="contact-info">
         <span class="contact-name">${sanitize(c.name)}</span>
-        <span class="contact-status">${blockedTag}</span>
+        <span class="contact-status">${lastMsgPreview || blockedTag}</span>
       </div>
       <div class="contact-right">
         ${unreadBadge}
@@ -250,21 +256,21 @@ async function openChat(uid) {
         <div class="contact-avatar" style="background:${other.color}">${sanitize(other.avatar || other.name?.[0] || '?')}</div>
         <div>
           <div class="chat-header-name">${sanitize(other.name)}</div>
-          <div class="chat-header-status">${_blockedMe ? 'Este usuario te bloqueou' : (other.online ? '<span class="online-dot"></span> Online' : 'Offline')}</div>
+          <div class="chat-header-status">${_blockedMe ? 'Este usuário te bloqueou' : (other.online ? '<span class="online-dot"></span> Online' : 'Offline')}</div>
         </div>
         <div class="chat-header-actions">
           <button onclick="toggleBlurMode()" title="Alternar ofuscação">${blurMode ? '🙈' : '🔒'}</button>
-          <button class="chat-delete-conv-btn" onclick="deleteConversation('${uid}')" title="Apagar conversa">🗑</button>
+          ${!_blockedMe ? `<button class="chat-delete-conv-btn" onclick="deleteConversation('${uid}')" title="Apagar conversa">🗑</button>` : ''}
           <button class="chat-block-btn" onclick="${blockBtnAction}" title="${blockBtnLabel}">${blockBtnIcon}</button>
         </div>
       </div>
       <div class="chat-msgs" id="chat-msgs"></div>
       <div id="chat-typing" class="typing-indicator" style="display:none">Digitando...</div>
       ${_blockedMe ? `
-        <div class="chat-blocked-bar">Voce foi bloqueado por este usuario. Nao e possivel enviar mensagens.</div>
+        <div class="chat-blocked-bar">Você foi bloqueado por este usuário. Não é possível enviar mensagens.</div>
       ` : _blockedByMe ? `
         <div class="chat-input-area blocked">
-          <div class="chat-blocked-notice">Voce bloqueou este contato. <button onclick="unblockUser('${uid}')">Desbloquear</button></div>
+          <div class="chat-blocked-notice">Você bloqueou este contato. <button onclick="unblockUser('${uid}')">Desbloquear</button></div>
         </div>
       ` : `
         <div class="chat-input-area">
@@ -317,7 +323,7 @@ function renderChatMessages() {
         ${content}
         <div class="msg-t">
           <span>${sanitize(time)}${isMine ? ' ✓✓' : ''}</span>
-          <button class="msg-delete-btn" onclick="deleteMsg('${m.id}')" title="Apagar mensagem">🗑</button>
+          ${isMine ? `<button class="msg-delete-btn" onclick="deleteMsg('${m.id}')" title="Apagar mensagem">🗑</button>` : ''}
         </div>
       </div>
     </div>`;

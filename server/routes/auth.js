@@ -47,12 +47,13 @@ router.post('/register', registerLimiter, validateRegister, async (req, res) => 
   const hash = bcrypt.hashSync(password, 12);
   const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
   const colors = ['#00e676','#1de9b6','#69f0ae','#00c853','#b9f6ca','#ff6b6b','#339af0','#20c997'];
+  const color = colors[Math.floor(Math.random() * colors.length)];
   const id = genId('u');
   const created = new Date().toLocaleDateString('pt-BR');
 
   await db.prepare(`INSERT INTO users (id, name, email, password_hash, role, avatar, color, created, settings)
     VALUES (?, ?, ?, ?, 'user', ?, ?, ?, '{}')`)
-    .run(id, name, email, hash, initials, colors[Math.floor(Math.random() * colors.length)], created);
+    .run(id, name, email, hash, initials, color, created);
 
   await db.prepare(`INSERT INTO notifications (id, user_id, icon, message, timestamp, read)
     VALUES (?, ?, '🎉', ?, ?, 0)`)
@@ -64,7 +65,7 @@ router.post('/register', registerLimiter, validateRegister, async (req, res) => 
   req.session.userId = id;
   req.session.role = 'user';
 
-  res.json({ ok: true, user: { id, name, email, avatar: initials, color: colors[Math.floor(Math.random() * colors.length)], created } });
+  res.json({ ok: true, user: { id, name, email, avatar: initials, color, created } });
 });
 
 router.post('/login', loginLimiter, validateLogin, async (req, res) => {
@@ -149,7 +150,7 @@ router.post('/admin-login', loginLimiter, async (req, res) => {
   clearAttempts(id);
 
   await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('ADMIN_LOGIN', ?, ?, ?)`)
-    .run('root', 'acesso administrativo', now());
+    .run(admin.id, 'acesso administrativo', now());
 
   req.session.adminId = admin.id;
   req.session.role = 'admin';

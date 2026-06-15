@@ -12,6 +12,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const path = require('path');
 const crypto = require('crypto');
+const cookieParser = require('cookie-parser');
 
 const { init: initDB, db: getDb } = require('./db');
 const { csrfToken, csrfCheck } = require('./middleware/auth');
@@ -107,6 +108,7 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 
 const sessionMiddleware = session({
   name: 'vault.sid',
@@ -222,7 +224,8 @@ io.on('connection', (socket) => {
       if (blockedBySender) return;
 
       const id = 'm' + Date.now().toString(36) + crypto.randomBytes(4).toString('hex');
-      const timestamp = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const d = new Date();
+      const timestamp = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
       const type = msg_type || (encrypted_image ? 'image' : 'text');
 
       await db.prepare('INSERT INTO messages (id, from_id, to_id, encrypted, encrypted_image, msg_type, timestamp, read) VALUES (?, ?, ?, ?, ?, ?, ?, 0)')
@@ -269,7 +272,8 @@ io.on('connection', (socket) => {
       if (!isMember) return;
 
       const id = 'gm' + Date.now().toString(36) + crypto.randomBytes(4).toString('hex');
-      const timestamp = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const d = new Date();
+      const timestamp = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
       await db.prepare('INSERT INTO group_messages (id, group_id, from_id, encrypted, timestamp) VALUES (?, ?, ?, ?, ?)')
         .run(id, groupId, userId, encrypted, timestamp);

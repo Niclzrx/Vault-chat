@@ -57,7 +57,14 @@ function clrMsg(id) { const el = document.getElementById(id); if (el) el.innerHT
 
 let _toastTimer;
 function toast(msg, type = 'info') {
+  // Clear previous timer
+  if (_toastTimer) {
+    clearTimeout(_toastTimer);
+    _toastTimer = null;
+  }
+  // Remove previous toast
   document.querySelectorAll('.notif-toast').forEach(t => t.remove());
+  
   const t = document.createElement('div');
   t.className = 'notif-toast';
   const icon = type === 'err' ? '✖' : type === 'ok' ? '✔' : type === 'warn' ? '⚠' : 'ℹ';

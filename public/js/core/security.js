@@ -17,7 +17,7 @@ const Session = {
     document.addEventListener('keydown', () => this.touch(), { passive: true });
     document.addEventListener('mousemove', () => this.touch(), { passive: true });
     this._timer = setInterval(() => {
-      if (!AppUser || AppAdmin) return;
+      if (!AppUser && !AppAdmin) return;
       if (Date.now() - this._lastActivity > SEC.SESSION_TIMEOUT_MS) {
         toast('Sessão expirada por inatividade.', 'warn');
         doLogout();

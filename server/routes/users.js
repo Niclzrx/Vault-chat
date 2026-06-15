@@ -49,7 +49,7 @@ router.get('/contacts', requireAuth, async (req, res) => {
     return {
       ...u,
       unread: unread.c || 0,
-      lastMsg: lastMsg ? { msg_type: lastMsg.msg_type, timestamp: lastMsg.timestamp } : null,
+      lastMsg: lastMsg ? { encrypted: lastMsg.encrypted, msg_type: lastMsg.msg_type, timestamp: lastMsg.timestamp } : null,
       blockedByMe: !!blocked,
       blockedMe: !!blockedBy
     };
@@ -58,9 +58,21 @@ router.get('/contacts', requireAuth, async (req, res) => {
   contacts.sort((a, b) => {
     if (a.unread > 0 && b.unread === 0) return -1;
     if (a.unread === 0 && b.unread > 0) return 1;
-    const ta = a.lastMsg?.timestamp || '';
-    const tb = b.lastMsg?.timestamp || '';
-    return tb.localeCompare(ta);
+    
+    // Parse DD/MM/YYYY HH:MM:SS timestamps for proper comparison
+    function parseTimestamp(ts) {
+      if (!ts) return 0;
+      const parts = ts.split(' ');
+      if (parts.length < 2) return 0;
+      const dateParts = parts[0].split('/');
+      const timeParts = parts[1].split(':');
+      if (dateParts.length < 3 || timeParts.length < 3) return 0;
+      return new Date(dateParts[2], dateParts[1] - 1, dateParts[0], timeParts[0], timeParts[1], timeParts[2]).getTime();
+    }
+    
+    const ta = parseTimestamp(a.lastMsg?.timestamp);
+    const tb = parseTimestamp(b.lastMsg?.timestamp);
+    return tb - ta;
   });
 
   res.json({ ok: true, contacts });

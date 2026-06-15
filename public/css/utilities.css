@@ -45,7 +45,7 @@
 /* ── History ── */
 .u-history { display: flex; flex-direction: column; gap: .75rem; }
 .u-history h2 { font-size: 1rem; font-weight: 700; }
-.history-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: .55rem; }
+.history-summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: .55rem; }
 .history-stat { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: .75rem; text-align: center; }
 .h-stat-label { font-size: .58rem; color: var(--t2); text-transform: uppercase; letter-spacing: .05em; display: block; }
 .h-stat-value { font-size: .95rem; font-weight: 700; margin-top: .15rem; display: block; }
