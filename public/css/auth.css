@@ -34,3 +34,8 @@
 #admin-click-indicator .bar { display: inline-flex; gap: 2px; margin-left: .4rem; }
 #admin-click-indicator .pip { width: 4px; height: 4px; border-radius: 50%; background: var(--t3); transition: background .15s; }
 #admin-click-indicator .pip.lit { background: var(--ac); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -70,18 +70,6 @@ const Crypto = {
       return await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
     } catch { return null; }
   },
-  async hashPw(password) {
-    const enc = new TextEncoder();
-    const buf1 = await crypto.subtle.digest('SHA-256', enc.encode('vault_salt_v3_' + password));
-    const hex1 = Array.from(new Uint8Array(buf1)).map(b => b.toString(16).padStart(2,'0')).join('');
-    const buf2 = await crypto.subtle.digest('SHA-256', enc.encode(hex1 + password + 'vault_pepper'));
-    return Array.from(new Uint8Array(buf2)).map(b => b.toString(16).padStart(2,'0')).join('');
-  },
-  async quickHash(text) {
-    const enc = new TextEncoder();
-    const buf = await crypto.subtle.digest('SHA-256', enc.encode(text));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-  },
   generateToken(len = 32) {
     return Array.from(crypto.getRandomValues(new Uint8Array(len)))
       .map(b => b.toString(16).padStart(2,'0')).join('');

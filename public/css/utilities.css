@@ -100,7 +100,7 @@
 /* ── Side overlay (mobile) ── */
 .side-open .side {
   display: flex !important;
-  position: fixed; top: 48px; left: 0; bottom: 0; z-index: 300;
+  position: fixed; top: 52px; left: 0; bottom: 0; z-index: 300;
   width: 210px; flex-direction: column;
   box-shadow: 4px 0 28px rgba(0,0,0,.6);
   border-right: 1px solid var(--border2);

@@ -204,12 +204,6 @@ canvas#particles { position: absolute; inset: 0; pointer-events: none; }
 .fadeIn { animation: fadeIn .15s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* ── Mobile sidebar overlay ── */
-.side-overlay {
-  display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6);
-  z-index: 99; backdrop-filter: blur(4px);
-}
-
 /* ── Responsive ── */
 @media (max-width: 768px) {
   nav { padding: .5rem .8rem; }

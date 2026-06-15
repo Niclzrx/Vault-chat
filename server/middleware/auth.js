@@ -58,7 +58,7 @@ function csrfCheck(req, res, next) {
       }
     } else {
       // For other routes, check session-based CSRF token
-      const token = req.headers['x-csrf-token'] || req.body?._csrf;
+      const token = req.headers['x-csrf-token'];
       if (!token || token !== req.session?.csrfToken) {
         return res.status(403).json({ error: 'Token CSRF inválido.' });
       }

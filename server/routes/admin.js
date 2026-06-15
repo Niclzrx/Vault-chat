@@ -65,6 +65,9 @@ router.put('/users/:id/kick', requireAdmin, async (req, res) => {
   lazy();
   const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
   if (!user) return res.status(404).json({ error: 'Usuário não encontrado.' });
+  if (req.params.id === req.session.userId) {
+    return res.status(400).json({ error: 'Não é possível desconectar a si mesmo.' });
+  }
 
   await db.prepare('UPDATE users SET online = 0 WHERE id = ?').run(req.params.id);
   await db.prepare('INSERT INTO notifications (id, user_id, icon, message, timestamp, read) VALUES (?, ?, ?, ?, ?, 0)')
@@ -72,6 +75,13 @@ router.put('/users/:id/kick', requireAdmin, async (req, res) => {
 
   await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('KICK', ?, 'desconectado pelo admin', ?)`)
     .run(user.name, now());
+
+  const { onlineUsers } = require('../index');
+  if (onlineUsers && onlineUsers.has(req.params.id)) {
+    const sockId = onlineUsers.get(req.params.id);
+    const io = req.app.get('io');
+    if (io) io.to(sockId).emit('user:kicked');
+  }
 
   res.json({ ok: true });
 });
@@ -95,6 +105,9 @@ router.put('/users/:id/revoke-admin', requireAdmin, async (req, res) => {
   lazy();
   const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
   if (!user) return res.status(404).json({ error: 'Usuário não encontrado.' });
+  if (req.params.id === req.session.userId) {
+    return res.status(400).json({ error: 'Não é possível remover seu próprio acesso de admin.' });
+  }
 
   await db.prepare('UPDATE users SET admin_granted = 0 WHERE id = ?').run(req.params.id);
   await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('ADMIN_REVOKE', ?, '', ?)`)
@@ -178,7 +191,9 @@ router.post('/reset', requireAdmin, async (req, res) => {
     'DELETE FROM groups_t',
     'DELETE FROM notifications',
     'DELETE FROM sys_logs',
-    'DELETE FROM recovery_requests'
+    'DELETE FROM recovery_requests',
+    'DELETE FROM vault_files',
+    'DELETE FROM blocked_users'
   ];
   for (const sql of stmts) {
     await db.prepare(sql).run();
@@ -186,6 +201,16 @@ router.post('/reset', requireAdmin, async (req, res) => {
   await db.prepare('UPDATE users SET online = 0, banned = 0, ban_reason = ?, banned_until = NULL, admin_granted = 0').run('');
   await db.prepare(`INSERT INTO sys_logs (event, user_name, detail, timestamp) VALUES ('SYSTEM_RESET', 'admin', 'todos os dados resetados', ?)`)
     .run(now());
+
+  const { onlineUsers } = require('../index');
+  if (onlineUsers) {
+    const io = req.app.get('io');
+    for (const [uid, sockId] of onlineUsers) {
+      if (io) io.to(sockId).emit('user:kicked');
+    }
+    onlineUsers.clear();
+  }
+
   res.json({ ok: true });
 });
 

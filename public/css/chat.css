@@ -174,7 +174,7 @@
   .msg { max-width: 88%; }
   .msg-img { max-width: 200px; max-height: 250px; }
   .chat-input-area { padding: .4rem .5rem; flex-shrink: 0; }
-  .chat-footer-note { display: none; }
+  .chat-footer-note { font-size: .5rem; padding: .25rem; }
   .chat-header-actions { gap: .15rem; }
   .chat-header-actions button { font-size: .75rem; padding: .15rem .25rem; }
 }

@@ -77,38 +77,58 @@ function openBanModal(userId) {
 async function confirmBan(userId) {
   const duration = parseInt(document.getElementById('ban-duration')?.value);
   const reason = document.getElementById('ban-reason')?.value.trim();
-  await API.adminBan(userId, duration, reason);
-  toast('Usuário banido.', 'warn');
-  document.querySelectorAll('.modal-bg').forEach(m => m.remove());
+  try {
+    await API.adminBan(userId, duration, reason);
+    toast('Usuário banido.', 'warn');
+    document.querySelectorAll('.modal-bg').forEach(m => m.remove());
+  } catch (err) {
+    toast(err.message || 'Erro ao banir.', 'err');
+  }
   const el = document.getElementById('adm-content');
   if (el) renderAdmUsers(el);
 }
 
 async function unbanUser(userId) {
-  await API.adminUnban(userId);
-  toast('Usuário desbanido.', 'ok');
+  try {
+    await API.adminUnban(userId);
+    toast('Usuário desbanido.', 'ok');
+  } catch (err) {
+    toast(err.message || 'Erro ao desbanir.', 'err');
+  }
   const el = document.getElementById('adm-content');
   if (el) renderAdmUsers(el);
 }
 
 async function grantAdminUser(userId) {
-  await API.adminGrantAdmin(userId);
-  toast('Admin concedido.', 'ok');
+  try {
+    await API.adminGrantAdmin(userId);
+    toast('Admin concedido.', 'ok');
+  } catch (err) {
+    toast(err.message || 'Erro ao conceder admin.', 'err');
+  }
   const el = document.getElementById('adm-content');
   if (el) renderAdmUsers(el);
 }
 
 async function revokeAdminUser(userId) {
-  await API.adminRevokeAdmin(userId);
-  toast('Admin removido.', 'info');
+  try {
+    await API.adminRevokeAdmin(userId);
+    toast('Admin removido.', 'info');
+  } catch (err) {
+    toast(err.message || 'Erro ao remover admin.', 'err');
+  }
   const el = document.getElementById('adm-content');
   if (el) renderAdmUsers(el);
 }
 
 async function kickUser(userId) {
   if (!confirm('Desconectar este usuário?')) return;
-  await API.adminKick(userId);
-  toast('Usuário desconectado.', 'warn');
+  try {
+    await API.adminKick(userId);
+    toast('Usuário desconectado.', 'warn');
+  } catch (err) {
+    toast(err.message || 'Erro ao desconectar.', 'err');
+  }
   const el = document.getElementById('adm-content');
   if (el) renderAdmUsers(el);
 }

@@ -95,18 +95,7 @@ function updateTicker() {
   if (_tickerInterval) return;
   _tickerInterval = setInterval(async () => {
     try {
-      if (AppUser || AppAdmin) {
-        const res = await API.get('/api/users');
-        if (res.ok) {
-          const on = res.users.filter(u => u.online).length + (AppUser?.online ? 1 : 0);
-          const total = res.users.length + 1;
-          setEl('tk-total', total);
-          setEl('tk-online', on);
-          setEl('tk-on', '● ' + on + ' online');
-        }
-      }
-      const msgRes = await API.get('/api/auth/me');
-      if (msgRes.ok && msgRes.type === 'user') {
+      if (AppUser) {
         const msgCount = await API.get('/api/users/unread');
         if (msgCount.ok) {
           const total = Object.values(msgCount.counts).reduce((a, b) => a + b, 0);
@@ -114,7 +103,7 @@ function updateTicker() {
         }
       }
     } catch (_) {}
-  }, 10000);
+  }, 30000);
 }
 
 function setEl(id, val) {

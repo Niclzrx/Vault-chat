@@ -105,10 +105,24 @@ async function refreshContactBadges() {
     const container = document.getElementById('chat-contacts');
     if (!container) return;
     const contacts = res.contacts;
-    container.innerHTML = contacts.map(c => contactItem(c)).join('');
-    if (currentChatTarget) {
-      const activeItem = container.querySelector(`.contact-item[data-uid="${currentChatTarget}"]`);
-      if (activeItem) activeItem.classList.add('active');
+    for (const c of contacts) {
+      const item = container.querySelector(`.contact-item[data-uid="${c.id}"]`);
+      if (!item) continue;
+      const existingBadge = item.querySelector('.contact-badge');
+      if (c.unread > 0) {
+        if (existingBadge) {
+          existingBadge.textContent = c.unread;
+        } else {
+          const badge = document.createElement('span');
+          badge.className = 'contact-badge';
+          badge.textContent = c.unread;
+          item.querySelector('.contact-right')?.appendChild(badge);
+        }
+      } else if (existingBadge) {
+        existingBadge.remove();
+      }
+      if (c.unread > 0) item.classList.add('unread');
+      else item.classList.remove('unread');
     }
   } catch (_) {}
 }
@@ -404,6 +418,8 @@ async function unblockUser(uid) {
 }
 
 function onUserOnline(data) {
+  const chatPage = document.getElementById('p-chat');
+  if (!chatPage || !chatPage.classList.contains('active')) return;
   const item = document.querySelector(`.contact-item[data-uid="${data.userId}"]`);
   if (item) {
     item.dataset.online = data.online ? '1' : '0';

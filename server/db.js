@@ -324,12 +324,6 @@ function createPGWrapper(pool) {
   };
 }
 
-function pgPrepare(sql) {
-  let idx = 0;
-  const converted = sql.replace(/\?/g, () => '$' + (++idx));
-  return converted;
-}
-
 function genId(prefix = '') {
   return prefix + Date.now().toString(36) + crypto.randomBytes(4).toString('hex');
 }
@@ -346,4 +340,4 @@ function dateNow() {
 function getDb() { return db; }
 function getIsPG() { return isPG; }
 
-module.exports = { init, db: getDb, isPG: getIsPG, genId, now, dateNow, SALT_ROUNDS, pgPrepare };
+module.exports = { init, db: getDb, isPG: getIsPG, genId, now, dateNow, SALT_ROUNDS };

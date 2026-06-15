@@ -8,8 +8,10 @@ function setASideActive(s) {
   });
 }
 
+let _admPollTimer = null;
 function aSec(s) {
   setASideActive(s);
+  if (_admPollTimer) { clearInterval(_admPollTimer); _admPollTimer = null; }
   const el = document.getElementById('adm-content');
   if (!el) return;
   el.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--t3)">▸ carregando...</div>';
@@ -22,6 +24,14 @@ function aSec(s) {
   else if (s === 'logs')     renderAdmLogs(el);
   else if (s === 'recovery') renderAdmRecovery(el);
   else if (s === 'config')   renderAdmConfig(el);
+  if (s === 'panel' || s === 'users') {
+    _admPollTimer = setInterval(() => {
+      const act = document.getElementById('adm-content');
+      if (!act) return;
+      if (s === 'panel') renderAdmPanel(act);
+      else renderAdmUsers(act);
+    }, 30000);
+  }
 }
 
 async function renderAdmPanel(el) {

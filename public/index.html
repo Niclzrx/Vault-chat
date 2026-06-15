@@ -454,6 +454,15 @@ function connectSocket() {
   AppSocket.on('group:message', (data) => { if (typeof onGroupMessage === 'function') onGroupMessage(data); });
   AppSocket.on('group:typing', (data) => { if (typeof onGroupTyping === 'function') onGroupTyping(data); });
   AppSocket.on('user:online', (data) => { if (typeof onUserOnline === 'function') onUserOnline(data); });
+  AppSocket.on('user:kicked', () => {
+    AppSocket.disconnect();
+    AppSocket = null;
+    AppUser = null;
+    AppAdmin = null;
+    Session.stop();
+    go('p-land');
+    toast('Você foi desconectado pelo administrador.', 'warn');
+  });
 }
 
 /* -- Init -- */

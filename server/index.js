@@ -40,6 +40,10 @@ if (useHTTPS) {
 const PORT = process.env.PORT || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 
+if (!process.env.SESSION_SECRET) {
+  console.warn('[VAULT] AVISO: SESSION_SECRET não definido. Usando chave aleatória (sessões não persistem entre reinícios).');
+}
+
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim())
   : ['http://localhost:' + PORT, 'https://vault-chat-nlu3.onrender.com'];
@@ -90,7 +94,6 @@ app.use(helmet({
 app.use((req, res, next) => {
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'no-referrer');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   next();
@@ -173,6 +176,9 @@ app.get('*', (req, res) => {
 });
 
 const onlineUsers = new Map();
+app.set('io', io);
+
+module.exports = { onlineUsers };
 
 io.use((socket, next) => {
   sessionMiddleware(socket.request, {}, () => {
