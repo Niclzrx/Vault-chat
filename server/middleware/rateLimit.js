@@ -56,4 +56,14 @@ const strictLimiter = rateLimit({
   keyGenerator: getKey
 });
 
-module.exports = { loginLimiter, apiLimiter, msgLimiter, registerLimiter, strictLimiter };
+// Recovery limiter - prevent spam
+const recoveryLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 3,
+  message: { error: 'Muitas solicitações. Aguarde 1 minuto.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: getKey
+});
+
+module.exports = { loginLimiter, apiLimiter, msgLimiter, registerLimiter, strictLimiter, recoveryLimiter };

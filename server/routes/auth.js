@@ -7,7 +7,7 @@ let db, genId, now;
 function lazy() { if (!db) { const d = require('../db'); db = d.db(); genId = d.genId; now = d.now; } }
 
 const { validateRegister, validateLogin } = require('../middleware/validate');
-const { loginLimiter, registerLimiter } = require('../middleware/rateLimit');
+const { loginLimiter, registerLimiter, recoveryLimiter } = require('../middleware/rateLimit');
 
 // Account lockout tracking
 const loginAttempts = new Map();
@@ -110,6 +110,7 @@ router.post('/login', loginLimiter, validateLogin, async (req, res) => {
 
   req.session.userId = user.id;
   req.session.role = 'user';
+  req.session.adminGranted = !!user.admin_granted;
 
   res.json({
     ok: true,
@@ -188,7 +189,7 @@ router.get('/me', async (req, res) => {
   res.json({ ok: true, type: 'user', user: { ...user, admin_granted: !!user.admin_granted } });
 });
 
-router.post('/recovery', async (req, res) => {
+router.post('/recovery', recoveryLimiter, async (req, res) => {
   lazy();
   const { name, email, message } = req.body || {};
   if (!name || !email) return res.status(400).json({ error: 'Preencha nome e email.' });

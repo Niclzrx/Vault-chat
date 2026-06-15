@@ -83,8 +83,8 @@ async function submitRecovery() {
     document.getElementById('rec-name').value = '';
     document.getElementById('rec-email').value = '';
     document.getElementById('rec-msg-text').value = '';
-  } catch (_) {
-    showOk('rec-msg', 'Solicitação enviada! O administrador responderá em até 24h.');
+  } catch (err) {
+    showErr('rec-msg', err.message || 'Erro ao enviar solicitação. Tente novamente.');
   }
 }
 

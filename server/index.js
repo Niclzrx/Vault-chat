@@ -59,7 +59,21 @@ const io = new Server(server, {
 function startServer() {
 
 app.use(helmet({
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "blob:"],
+      connectSrc: ["'self'", "wss:", "ws:"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      upgradeInsecureRequests: []
+    }
+  },
   crossOriginEmbedderPolicy: false,
   crossOriginResourcePolicy: false,
   hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
@@ -82,11 +96,8 @@ app.use((req, res, next) => {
 });
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, etc.)
-    // But block null origin from sandboxed iframes
-    if (origin === null || origin === undefined) {
-      callback(null, false);
-    } else if (allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (mobile apps, curl, Postman, etc.)
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(null, false);

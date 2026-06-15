@@ -18,7 +18,9 @@ function sanitize(str) {
 function validateEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
 function validatePassword(pass) {
   if (pass.length < SEC.MIN_PASSWORD_LEN) return 'Mínimo ' + SEC.MIN_PASSWORD_LEN + ' caracteres.';
-  if (!/[A-Z]/.test(pass) && !/[0-9]/.test(pass)) return 'Use letras maiúsculas ou números.';
+  if (!/[A-Z]/.test(pass)) return 'Precisa de pelo menos 1 letra maiúscula.';
+  if (!/[0-9]/.test(pass)) return 'Precisa de pelo menos 1 número.';
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(pass)) return 'Precisa de pelo menos 1 símbolo (!@#$%^&*).';
   return null;
 }
 function pad(n) { return String(n).padStart(2, '0'); }

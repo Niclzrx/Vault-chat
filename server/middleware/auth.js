@@ -10,10 +10,16 @@ function requireAuth(req, res, next) {
 }
 
 function requireAdmin(req, res, next) {
-  if (!req.session || !req.session.adminId) {
-    return res.status(403).json({ error: 'Acesso negado.' });
+  // Allow access if:
+  // 1. Admin logged in via admin-login (req.session.adminId exists)
+  // 2. OR user has admin_granted flag (req.session.userId + req.session.adminGranted)
+  if (req.session && req.session.adminId) {
+    return next();
   }
-  next();
+  if (req.session && req.session.userId && req.session.adminGranted) {
+    return next();
+  }
+  return res.status(403).json({ error: 'Acesso negado.' });
 }
 
 function csrfToken(req, res, next) {
