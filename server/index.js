@@ -68,6 +68,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "blob:"],
@@ -84,7 +85,6 @@ app.use(helmet({
   hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
   noSniff: true,
   referrerPolicy: { policy: "no-referrer" },
-  xssFilter: true,
   frameguard: { action: 'deny' },
   hidePoweredBy: true,
   permittedCrossDomainPolicies: { permittedPolicies: "none" }
