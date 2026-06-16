@@ -192,7 +192,6 @@ router.post('/reset', requireAdmin, async (req, res) => {
     'DELETE FROM notifications',
     'DELETE FROM sys_logs',
     'DELETE FROM recovery_requests',
-    'DELETE FROM vault_files',
     'DELETE FROM blocked_users'
   ];
   for (const sql of stmts) {

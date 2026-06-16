@@ -26,21 +26,6 @@ function validatePassword(pass) {
 function pad(n) { return String(n).padStart(2, '0'); }
 function fmtTime() { const n = new Date(); return pad(n.getHours()) + ':' + pad(n.getMinutes()) + ':' + pad(n.getSeconds()); }
 function fmtDate() { return new Date().toLocaleDateString('pt-BR'); }
-function fmtSize(b) {
-  if (b < 1024) return b + ' B';
-  if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
-  return (b / (1024 * 1024)).toFixed(1) + ' MB';
-}
-function fmtFileIcon(type, name) {
-  if (type.startsWith('image/')) return '🖼';
-  if (type.startsWith('video/')) return '🎬';
-  if (type.startsWith('audio/')) return '🎵';
-  if (type === 'application/pdf') return '📄';
-  if (name.endsWith('.txt') || name.endsWith('.md')) return '📝';
-  if (name.endsWith('.zip') || name.endsWith('.rar')) return '📦';
-  if (name.endsWith('.json') || name.endsWith('.js') || name.endsWith('.ts')) return '⊡';
-  return '▣';
-}
 function fmtBanTime(bannedUntil) {
   if (!bannedUntil) return 'Permanente';
   const diff = bannedUntil - Date.now();

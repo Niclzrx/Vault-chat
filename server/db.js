@@ -55,6 +55,7 @@ function initSQLite() {
       encrypted TEXT NOT NULL,
       encrypted_image TEXT DEFAULT '',
       msg_type TEXT DEFAULT 'text',
+      mime_type TEXT DEFAULT '',
       timestamp TEXT,
       read INTEGER DEFAULT 0
     );
@@ -110,15 +111,6 @@ function initSQLite() {
       created TEXT,
       PRIMARY KEY (blocker_id, blocked_id)
     );
-    CREATE TABLE IF NOT EXISTS vault_files (
-      id TEXT PRIMARY KEY,
-      user_id TEXT,
-      original_name TEXT,
-      stored_name TEXT,
-      type TEXT,
-      size INTEGER,
-      uploaded TEXT
-    );
     CREATE INDEX IF NOT EXISTS idx_messages_from ON messages(from_id);
     CREATE INDEX IF NOT EXISTS idx_messages_to ON messages(to_id);
     CREATE INDEX IF NOT EXISTS idx_group_messages_group ON group_messages(group_id);
@@ -127,6 +119,7 @@ function initSQLite() {
 
   try { db.exec(`ALTER TABLE messages ADD COLUMN encrypted_image TEXT DEFAULT ''`); } catch (_) {}
   try { db.exec(`ALTER TABLE messages ADD COLUMN msg_type TEXT DEFAULT 'text'`); } catch (_) {}
+  try { db.exec(`ALTER TABLE messages ADD COLUMN mime_type TEXT DEFAULT ''`); } catch (_) {}
   try { db.exec(`ALTER TABLE group_messages ADD COLUMN encrypted_image TEXT DEFAULT ''`); } catch (_) {}
   try { db.exec(`ALTER TABLE group_messages ADD COLUMN msg_type TEXT DEFAULT 'text'`); } catch (_) {}
 
@@ -191,6 +184,7 @@ async function initPG(url) {
         encrypted TEXT NOT NULL,
         encrypted_image TEXT DEFAULT '',
         msg_type TEXT DEFAULT 'text',
+        mime_type TEXT DEFAULT '',
         timestamp TEXT,
         read INTEGER DEFAULT 0
       )`,
@@ -245,15 +239,6 @@ async function initPG(url) {
         blocked_id TEXT NOT NULL,
         created TEXT,
         PRIMARY KEY (blocker_id, blocked_id)
-      )`,
-      `CREATE TABLE IF NOT EXISTS vault_files (
-        id TEXT PRIMARY KEY,
-        user_id TEXT,
-        original_name TEXT,
-        stored_name TEXT,
-        type TEXT,
-        size INTEGER,
-        uploaded TEXT
       )`,
       `CREATE INDEX IF NOT EXISTS idx_messages_from ON messages(from_id)`,
       `CREATE INDEX IF NOT EXISTS idx_messages_to ON messages(to_id)`,

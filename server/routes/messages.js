@@ -25,7 +25,8 @@ router.get('/:userId', requireAuth, async (req, res) => {
   const msgs = messages.map(m => ({
     ...m,
     encrypted_image: m.encrypted_image || '',
-    msg_type: m.msg_type || 'text'
+    msg_type: m.msg_type || 'text',
+    mime_type: m.mime_type || ''
   }));
 
   await db.prepare('UPDATE messages SET read = 1 WHERE from_id = ? AND to_id = ? AND read = 0')
@@ -36,7 +37,7 @@ router.get('/:userId', requireAuth, async (req, res) => {
 
 router.post('/', requireAuth, msgLimiter, async (req, res) => {
   lazy();
-  const { to, encrypted, encrypted_image, msg_type } = req.body || {};
+  const { to, encrypted, encrypted_image, msg_type, mime_type } = req.body || {};
   if (!to) return res.status(400).json({ error: 'Dados inválidos.' });
   if (!encrypted && !encrypted_image) return res.status(400).json({ error: 'Dados inválidos.' });
 
@@ -54,16 +55,17 @@ router.post('/', requireAuth, msgLimiter, async (req, res) => {
   const id = genId('m');
   const timestamp = now();
   const type = msg_type || (encrypted_image ? 'image' : 'text');
+  const mime = mime_type || '';
 
-  await db.prepare('INSERT INTO messages (id, from_id, to_id, encrypted, encrypted_image, msg_type, timestamp, read) VALUES (?, ?, ?, ?, ?, ?, ?, 0)')
-    .run(id, from, to, encrypted || '', encrypted_image || '', type, timestamp);
+  await db.prepare('INSERT INTO messages (id, from_id, to_id, encrypted, encrypted_image, msg_type, mime_type, timestamp, read) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)')
+    .run(id, from, to, encrypted || '', encrypted_image || '', type, mime, timestamp);
 
   const fromUser = await db.prepare('SELECT name FROM users WHERE id = ?').get(from);
 
   await db.prepare('INSERT INTO notifications (id, user_id, icon, message, timestamp, read) VALUES (?, ?, ?, ?, ?, 0)')
     .run(genId('n'), to, '▸', `Nova mensagem de ${fromUser?.name || '?'}`, timestamp);
 
-  res.json({ ok: true, message: { id, from, to, encrypted, encrypted_image, msg_type: type, timestamp } });
+  res.json({ ok: true, message: { id, from, to, encrypted, encrypted_image, msg_type: type, mime_type: mime, timestamp } });
 });
 
 router.delete('/conversation/:userId', requireAuth, async (req, res) => {

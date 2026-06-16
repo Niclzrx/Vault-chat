@@ -155,7 +155,6 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const messageRoutes = require('./routes/messages');
 const groupRoutes = require('./routes/groups');
-const fileRoutes = require('./routes/files');
 const notifRoutes = require('./routes/notifications');
 const adminRoutes = require('./routes/admin');
 
@@ -163,7 +162,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/groups', groupRoutes);
-app.use('/api/files', fileRoutes);
 app.use('/api/notifications', notifRoutes);
 app.use('/api/admin', adminRoutes);
 
@@ -211,7 +209,7 @@ io.on('connection', (socket) => {
   socket.on('chat:send', async (data) => {
     try {
       const db = getDb();
-      const { to, encrypted, encrypted_image, msg_type } = data;
+      const { to, encrypted, encrypted_image, msg_type, mime_type } = data;
       const from = userId;
       if (!from || !to) return;
       if (!encrypted && !encrypted_image) return;
@@ -233,16 +231,17 @@ io.on('connection', (socket) => {
       const d = new Date();
       const timestamp = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
       const type = msg_type || (encrypted_image ? 'image' : 'text');
+      const mime = mime_type || '';
 
-      await db.prepare('INSERT INTO messages (id, from_id, to_id, encrypted, encrypted_image, msg_type, timestamp, read) VALUES (?, ?, ?, ?, ?, ?, ?, 0)')
-        .run(id, from, to, encrypted || '', encrypted_image || '', type, timestamp);
+      await db.prepare('INSERT INTO messages (id, from_id, to_id, encrypted, encrypted_image, msg_type, mime_type, timestamp, read) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)')
+        .run(id, from, to, encrypted || '', encrypted_image || '', type, mime, timestamp);
 
       const fromUser = await db.prepare('SELECT name FROM users WHERE id = ?').get(from);
       await db.prepare('INSERT INTO notifications (id, user_id, icon, message, timestamp, read) VALUES (?, ?, ?, ?, ?, 0)')
         .run('n' + Date.now() + crypto.randomBytes(2).toString('hex'), to, '▸', `Nova mensagem de ${fromUser?.name || '?'}`, timestamp);
 
       const room = `chat:${[from, to].sort().join('_')}`;
-      io.to(room).emit('chat:message', { id, from, to, encrypted, encrypted_image, msg_type: type, timestamp });
+      io.to(room).emit('chat:message', { id, from, to, encrypted, encrypted_image, msg_type: type, mime_type: mime, timestamp });
 
       const toSocket = onlineUsers.get(to);
       if (toSocket) io.to(toSocket).emit('chat:notify', { from, fromName: fromUser?.name });

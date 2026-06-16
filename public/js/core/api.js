@@ -105,11 +105,12 @@ const API = {
     return this.get('/api/messages/' + userId);
   },
 
-  sendMessage(to, encrypted, encrypted_image, msg_type) {
+  sendMessage(to, encrypted, encrypted_image, msg_type, mime_type) {
     const body = { to };
     if (encrypted) body.encrypted = encrypted;
     if (encrypted_image) body.encrypted_image = encrypted_image;
     if (msg_type) body.msg_type = msg_type;
+    if (mime_type) body.mime_type = mime_type;
     return this.post('/api/messages', body);
   },
 
@@ -167,34 +168,6 @@ const API = {
 
   markAllNotificationsRead() {
     return this.put('/api/notifications');
-  },
-
-  getFiles() {
-    return this.get('/api/files');
-  },
-
-  uploadFile(file) {
-    return new Promise((resolve, reject) => {
-      const formData = new FormData();
-      formData.append('file', file);
-      fetch('/api/files/upload', {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: { 'X-CSRF-Token': this.csrfToken },
-        body: formData
-      }).then(r => r.json()).then(d => {
-        if (d.ok) resolve(d);
-        else reject(new Error(d.error));
-      }).catch(reject);
-    });
-  },
-
-  downloadFile(id) {
-    window.open('/api/files/download/' + id + '?token=' + Date.now(), '_blank');
-  },
-
-  deleteFile(id) {
-    return this.del('/api/files/' + id);
   },
 
   adminStats() {

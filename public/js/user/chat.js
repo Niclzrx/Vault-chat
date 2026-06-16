@@ -32,7 +32,7 @@ async function decryptMsg(m) {
     try {
       const buf = await Crypto.decryptBinary(m.encrypted_image, _convKey);
       if (buf) {
-        const blob = new Blob([buf]);
+        const blob = new Blob([buf], { type: m.mime_type || 'image/png' });
         m._imgUrl = URL.createObjectURL(blob);
         _chatBlobUrls.push(m._imgUrl);
         m.decrypted = null;
@@ -65,6 +65,7 @@ async function onSocketMessage(data) {
       encrypted: data.encrypted || '',
       encrypted_image: data.encrypted_image || '',
       msg_type: data.msg_type || 'text',
+      mime_type: data.mime_type || '',
       timestamp: data.timestamp,
       from_name: '',
       from_avatar: '',
@@ -377,9 +378,9 @@ async function sendImage(fileInput) {
     const encImg = await Crypto.encryptBinary(arrayBuf, _convKey);
 
     if (AppSocket) {
-      AppSocket.emit('chat:send', { to: currentChatTarget, encrypted_image: encImg, msg_type: 'image' });
+      AppSocket.emit('chat:send', { to: currentChatTarget, encrypted_image: encImg, msg_type: 'image', mime_type: file.type || 'image/png' });
     } else {
-      await API.sendMessage(currentChatTarget, '', encImg, 'image');
+      await API.sendMessage(currentChatTarget, '', encImg, 'image', file.type || 'image/png');
       await openChat(currentChatTarget);
     }
   } catch (_) {

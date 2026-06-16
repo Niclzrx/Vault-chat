@@ -14,7 +14,6 @@ function uSec(section) {
     case 'home': renderHome(AppUser, el); break;
     case 'chat': renderChat(AppUser, el); break;
     case 'groups': renderGroups(AppUser, el); break;
-    case 'files': renderFiles(AppUser, el); break;
     case 'notif': renderNotif(AppUser, el); break;
     case 'profile': renderProfile(AppUser, el); break;
     case 'settings': renderSettings(AppUser, el); break;
@@ -24,7 +23,7 @@ function uSec(section) {
 }
 
 function setUSideActive(s) {
-  ['home', 'chat', 'groups', 'files', 'notif', 'profile', 'settings', 'history', 'crypto'].forEach(x => {
+  ['home', 'chat', 'groups', 'notif', 'profile', 'settings', 'history', 'crypto'].forEach(x => {
     document.getElementById('si-' + x)?.classList.toggle('on', x === s);
   });
 }
