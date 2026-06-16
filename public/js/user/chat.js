@@ -1,6 +1,6 @@
 'use strict';
 
-/* global API, AppUser, AppSocket, Crypto, sanitize, fmtTime, toast, go, updateTicker, updateNotifDot */
+/* global API, AppUser, AppSocket, Crypto, sanitize, fmtTime, toast, go, updateTicker, updateNotifDot, avatarHTML */
 
 let blurMode = false;
 let currentChatTarget = null;
@@ -189,7 +189,7 @@ function contactItem(c) {
 
   return `
     <div class="contact-item${c.unread > 0 ? ' unread' : ''}" data-uid="${c.id}" data-online="${c.online ? '1' : '0'}" onclick="openChat('${c.id}')">
-      <div class="contact-avatar" style="background:${c.color}">${sanitize(c.avatar || c.name?.[0] || '?')}</div>
+      ${avatarHTML(c.avatar, c.color, c.name)}
       <div class="contact-info">
         <span class="contact-name">${sanitize(c.name)}</span>
         <span class="contact-status">${lastMsgPreview || blockedTag}</span>
@@ -268,7 +268,7 @@ async function openChat(uid) {
 
     main.innerHTML = `
       <div class="chat-header">
-        <div class="contact-avatar" style="background:${other.color}">${sanitize(other.avatar || other.name?.[0] || '?')}</div>
+        ${avatarHTML(other.avatar, other.color, other.name)}
         <div>
           <div class="chat-header-name">${sanitize(other.name)}</div>
           <div class="chat-header-status">${_blockedMe ? 'Este usuário te bloqueou' : (other.online ? '<span class="online-dot"></span> Online' : 'Offline')}</div>
@@ -332,7 +332,7 @@ function renderChatMessages() {
     }
 
     return `<div class="msg ${isMine ? 'out' : 'in'}">
-      ${!isMine ? `<div class="av" style="background:${fromColor || 'var(--bg4)'}">${sanitize(fromAvatar || fromName[0] || '?')}</div>` : ''}
+      ${!isMine ? avatarHTML(fromAvatar, fromColor, fromName, 24) : ''}
       <div class="msg-bubble">
         ${!isMine && fromName ? `<div class="msg-author">${sanitize(fromName)}</div>` : ''}
         ${content}

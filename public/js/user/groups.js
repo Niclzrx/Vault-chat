@@ -1,6 +1,6 @@
 'use strict';
 
-/* global API, AppUser, AppSocket, Crypto, sanitize, fmtTime, toast, blurMode, uSec */
+/* global API, AppUser, AppSocket, Crypto, sanitize, fmtTime, toast, blurMode, uSec, avatarHTML */
 
 let _grpCurrentId = null;
 let _grpKey = '';
@@ -29,7 +29,7 @@ async function onGroupMessage(data) {
     try { text = await Crypto.decrypt(data.encrypted, _grpKey); } catch (_) { text = '⚠ Erro'; }
   }
   const html = `<div class="msg ${isMine ? 'out' : 'in'}">
-    ${!isMine ? `<div class="av" style="background:${data.from_color || 'var(--bg4)'}">${sanitize(data.from_avatar || '?')}</div>` : ''}
+    ${!isMine ? avatarHTML(data.from_avatar, data.from_color, data.from_name, 24) : ''}
     <div class="msg-bubble">
       ${!isMine ? `<div class="msg-author">${sanitize(data.from_name || '?')}</div>` : ''}
       <div class="bbl">${sanitize(text || '?')}</div>
@@ -66,7 +66,7 @@ function _chipGrid(users, prefix) {
   return `<div class="grp-member-grid">${users.map(m => `
     <label class="grp-member-chip" id="${prefix}-${m.id}">
       <input type="checkbox" value="${m.id}" style="display:none"/>
-      <span class="grp-chip-av" style="background:${m.color || 'var(--bg4)'}">${sanitize(m.avatar || m.name?.[0] || '?')}</span>
+      <span class="grp-chip-av" style="background:${m.color || 'var(--bg4)'}">${m.avatar && m.avatar.startsWith('data:') ? `<img class="avatar-img" src="${m.avatar}" alt="${sanitize(m.name)}"/>` : sanitize(m.avatar || m.name?.[0] || '?')}</span>
       <span class="grp-chip-name">${sanitize(m.name)}</span>
       <span class="grp-chip-check">✔</span>
     </label>`).join('')}
@@ -225,7 +225,7 @@ function _grpMsgHtml(m) {
   const text = blurMode ? '◆ Mensagem criptografada' : (m.decrypted || '⚠ Erro');
   const out = m.from_id === AppUser?.id;
   return `<div class="msg ${out ? 'out' : 'in'}">
-    ${!out ? `<div class="av" style="background:${from.color || 'var(--bg4)'}">${sanitize(from.avatar || '?')}</div>` : ''}
+    ${!out ? avatarHTML(from.avatar, from.color, from.name, 24) : ''}
     <div class="msg-bubble">
       ${!out ? `<div class="msg-author">${sanitize(from.name || '?')}</div>` : ''}
       <div class="bbl">${sanitize(text)}</div>

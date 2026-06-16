@@ -1,6 +1,6 @@
 'use strict';
 
-/* global API, AppAdmin, sanitize, toast */
+/* global API, AppAdmin, sanitize, toast, avatarHTML */
 
 async function renderAdmLive(el) {
   try {
@@ -18,7 +18,7 @@ async function renderAdmLive(el) {
         online.map(u => `
           <div style="display:flex;align-items:center;gap:.5rem;padding:.45rem 0;border-bottom:1px solid var(--border);font-size:.78rem">
             <div class="dot dot-g"></div>
-            <div style="width:24px;height:24px;border-radius:50%;background:${u.color}22;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:800;color:${u.color}">${u.avatar}</div>
+            ${avatarHTML(u.avatar, u.color, u.name, 24)}
             <span style="flex:1;font-weight:600">${sanitize(u.name)}</span>
             <button class="btn sm red" onclick="kickUser('${u.id}')" title="Desconectar">🔌</button>
           </div>`).join('')}

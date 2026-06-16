@@ -1,6 +1,6 @@
 'use strict';
 
-/* global API, AppAdmin, sanitize, toast */
+/* global API, AppAdmin, sanitize, toast, avatarHTML */
 
 function setASideActive(s) {
   ['panel','live','users','logins','chats','groups','logs','recovery','config','ai'].forEach(x => {
@@ -56,7 +56,7 @@ async function renderAdmPanel(el) {
         ${users.map(u => `
           <div style="display:flex;align-items:center;gap:.65rem;padding:.6rem .75rem;background:${u.banned ? 'rgba(255,82,82,.05)' : 'var(--bg3)'};border-radius:var(--radius-sm);border:1px solid ${u.banned ? 'rgba(255,82,82,.15)' : 'var(--border)'};margin-bottom:.3rem">
             <div class="dot ${u.online ? 'dot-g' : 'dot-r'}"></div>
-            <div style="width:28px;height:28px;border-radius:50%;background:${u.color}22;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;color:${u.color}">${u.avatar}</div>
+            ${avatarHTML(u.avatar, u.color, u.name, 28)}
             <div style="flex:1">
               <div style="font-size:.8rem;font-weight:700">${sanitize(u.name)}</div>
               <div style="font-size:.68rem;color:var(--t2)">${sanitize(u.email)}</div>

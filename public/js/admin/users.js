@@ -1,6 +1,6 @@
 'use strict';
 
-/* global API, AppAdmin, sanitize, fmtTime, fmtBanTime, toast, showErr, clrMsg */
+/* global API, AppAdmin, sanitize, fmtTime, fmtBanTime, toast, showErr, clrMsg, avatarHTML */
 
 async function renderAdmUsers(el) {
   try {
@@ -18,7 +18,7 @@ async function renderAdmUsers(el) {
               <tr style="${u.banned ? 'opacity:.6' : ''}">
                 <td>
                   <div style="display:flex;align-items:center;gap:.45rem">
-                    <div style="width:28px;height:28px;border-radius:50%;background:${u.color}22;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:800;color:${u.color}">${u.avatar}</div>
+                    ${avatarHTML(u.avatar, u.color, u.name, 28)}
                     <span style="font-weight:600">${sanitize(u.name)}</span>
                   </div>
                 </td>

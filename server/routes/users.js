@@ -145,13 +145,19 @@ router.get('/:id', requireAuth, async (req, res) => {
 router.put('/:id', requireAuth, async (req, res) => {
   lazy();
   if (req.params.id !== req.session.userId) return res.status(403).json({ error: 'Sem permissão.' });
-  const { name, color, settings } = req.body || {};
+  const { name, color, settings, avatar } = req.body || {};
   const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
   if (!user) return res.status(404).json({ error: 'Usuário não encontrado.' });
 
   if (name) await db.prepare('UPDATE users SET name = ? WHERE id = ?').run(sanitize(name.trim()), req.params.id);
   if (color) await db.prepare('UPDATE users SET color = ? WHERE id = ?').run(color, req.params.id);
   if (settings) await db.prepare('UPDATE users SET settings = ? WHERE id = ?').run(JSON.stringify(settings), req.params.id);
+  if (typeof avatar !== 'undefined') {
+    if (avatar && (!avatar.startsWith('data:image/') || avatar.length > 500000)) {
+      return res.status(400).json({ error: 'Imagem inválida ou muito grande.' });
+    }
+    await db.prepare('UPDATE users SET avatar = ? WHERE id = ?').run(avatar || '', req.params.id);
+  }
 
   const updated = await db.prepare('SELECT id, name, email, avatar, color, online, settings FROM users WHERE id = ?').get(req.params.id);
   res.json({ ok: true, user: updated });

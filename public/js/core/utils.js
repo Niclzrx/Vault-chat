@@ -96,6 +96,16 @@ function setEl(id, val) {
   if (el) el.textContent = val;
 }
 
+function avatarHTML(avatar, color, name, size) {
+  const sz = size || 34;
+  const fontSize = Math.max(9, Math.round(sz * 0.32));
+  const initials = sanitize((name || '?')[0] || '?');
+  if (avatar && avatar.startsWith('data:')) {
+    return `<div class="contact-avatar" style="background:${color || 'var(--bg4)'};width:${sz}px;height:${sz}px;min-width:${sz}px"><img class="avatar-img" src="${avatar}" alt="${initials}"/></div>`;
+  }
+  return `<div class="contact-avatar" style="background:${color || 'var(--bg4)'};width:${sz}px;height:${sz}px;min-width:${sz}px;font-size:${fontSize}px">${initials}</div>`;
+}
+
 /* ── Mobile Virtual Keyboard Handler ── */
 (function() {
   if (!window.visualViewport) return;

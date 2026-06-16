@@ -1,6 +1,6 @@
 'use strict';
 
-/* global API, AppUser, AppSocket, sanitize, fmtTime, toast, setEl, go, setUSideActive */
+/* global API, AppUser, AppSocket, sanitize, fmtTime, toast, setEl, go, setUSideActive, avatarHTML */
 
 function uSec(section) {
   if (typeof stopChatPool === 'function') stopChatPool();
@@ -42,8 +42,11 @@ function openUserDash() {
   
   const sideUser = document.getElementById('side-user-info');
   if (sideUser) {
+    const hasImg = AppUser.avatar && AppUser.avatar.startsWith('data:');
     sideUser.innerHTML = `
-      <div class="side-user-av" style="background:${AppUser.color}">${sanitize(AppUser.avatar || AppUser.name?.[0] || '?')}</div>
+      <div class="side-user-av" style="background:${AppUser.color}">
+        ${hasImg ? `<img class="avatar-img" src="${AppUser.avatar}" alt="Avatar"/>` : sanitize(AppUser.avatar || AppUser.name?.[0] || '?')}
+      </div>
       <div class="side-user-info">
         <div class="side-user-name">${sanitize(AppUser.name)}</div>
         <div class="side-user-status">Online</div>
@@ -72,7 +75,7 @@ function renderHome(u, el) {
   el.innerHTML = `
     <div class="u-home">
       <div class="home-header">
-        <div class="home-avatar" style="background:${u.color}">${sanitize(u.avatar || u.name?.[0] || '?')}</div>
+        ${avatarHTML(u.avatar, u.color, u.name, 42)}
         <div class="home-info">
           <h2>${sanitize(u.name)}</h2>
           <span class="home-email">${sanitize(u.email)}</span>
