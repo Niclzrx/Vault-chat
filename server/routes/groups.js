@@ -170,14 +170,17 @@ router.delete('/:id/members/:uid', requireAuth, async (req, res) => {
   const group = await db.prepare('SELECT * FROM groups_t WHERE id = ?').get(req.params.id);
   if (!group) return res.status(404).json({ error: 'Grupo não encontrado.' });
 
-  const isAdmin = await db.prepare('SELECT is_admin FROM group_members WHERE group_id = ? AND user_id = ?')
-    .get(group.id, req.session.userId);
-  if (!isAdmin?.is_admin) return res.status(403).json({ error: 'Apenas administradores podem remover membros.' });
+  const isSelf = req.params.uid === req.session.userId;
+  if (!isSelf) {
+    const isAdmin = await db.prepare('SELECT is_admin FROM group_members WHERE group_id = ? AND user_id = ?')
+      .get(group.id, req.session.userId);
+    if (!isAdmin?.is_admin) return res.status(403).json({ error: 'Apenas administradores podem remover membros.' });
+  }
 
   await db.prepare('DELETE FROM group_members WHERE group_id = ? AND user_id = ?').run(group.id, req.params.uid);
 
   await db.prepare('INSERT INTO notifications (id, user_id, icon, message, timestamp, read) VALUES (?, ?, ?, ?, ?, 0)')
-    .run(genId('n'), req.params.uid, '◗', `Você foi removido do grupo "${group.name}"`, now());
+    .run(genId('n'), req.params.uid, '◗', isSelf ? `Você saiu do grupo "${group.name}"` : `Você foi removido do grupo "${group.name}"`, now());
 
   res.json({ ok: true });
 });
